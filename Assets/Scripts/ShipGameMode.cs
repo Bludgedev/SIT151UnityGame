@@ -10,6 +10,8 @@ public class ShipGameMode : MonoBehaviour
 {
     public PlayerShipController player;
 
+    public PlayerHealth playerHealth;
+
     [Header("Level Setup")]
     public string levelName = "Level1";
     
@@ -21,18 +23,9 @@ public class ShipGameMode : MonoBehaviour
     public Slider healthBar;
 
    
-
     public AudioClip gameOverMusic;
 
     public int itemsCollected = 0;
-
-
-    public float heartbeatThreshold = 30f;
-    private float heartbeatMaxVolume = 1f;
-
-    public AudioLowPassFilter musicLowPassFilter;  // For applying the muffling effect to game music
-    private float normalLowPassFrequency = 22000f;  // Normal frequency of game music
-    private float muffledLowPassFrequency = 500f;
 
     [Header("Game Over UI")]
     public GameObject gameOverMenu;
@@ -56,22 +49,21 @@ public class ShipGameMode : MonoBehaviour
 
 
         InitialiseLevel();
+        InitialiseUI();
         SetState(GameState.Gameplay);
     }
 
     // Update is called once per frame
     void Update()
     {
-      
 
-        //  Updates both UI Health indicators
-        healthDisplay.text = "Health: " + player.health + "%";
-        healthBar.value = player.health;
+        healthDisplay.text = "Health: " + playerHealth.CurrentHealth + "%";
+        healthBar.value = playerHealth.CurrentHealth;
 
-        if (CurrentState != GameState.GameOver && player.health <= 0)
+        if (CurrentState != GameState.GameOver && playerHealth.CurrentHealth <= 0)
         {
-            Debug.Log("GAME OVER TRIGGER CONDITION MET: " + player.health);
-            player.health = 0;
+            Debug.Log("GAME OVER TRIGGER CONDITION MET: " + playerHealth.CurrentHealth);
+      
             TriggerGameOver();
        }
 
@@ -86,6 +78,14 @@ public class ShipGameMode : MonoBehaviour
 
     }
 
+    private void InitialiseUI()
+    {
+        if (playerHealth == null)
+            return;
+
+        UpdateUI(playerHealth.CurrentHealth, playerHealth.HealthPercent);
+    }
+
     private void InitialiseLevel()
     {
         // 1. Tell MusicManager what level we're in
@@ -96,15 +96,10 @@ public class ShipGameMode : MonoBehaviour
     }
 
   
-
-
-
    // public void TriggerPause()
    // {
    //     
    // }
-
-
 
     public void TriggerGameOver()
     {
@@ -127,6 +122,14 @@ public class ShipGameMode : MonoBehaviour
     {
         SetState(GameState.Gameplay);
     }
+
+
+   public void UpdateUI(float currentHealth, float percent)
+    {
+        healthDisplay.text = $"Health: {currentHealth}";
+        healthBar.value = percent;
+    }
+
 
 
     public Image fadeImage;
@@ -182,7 +185,6 @@ public class ShipGameMode : MonoBehaviour
     IEnumerator GameOverSequence()
     {
         
-
         // 1. Switch music state to Game Over (stop gameplay + play game over track) superceded by new design
        
 
@@ -206,7 +208,12 @@ public class ShipGameMode : MonoBehaviour
         yield return new WaitUntil(() =>
             !MusicManager.Instance.IsSecondaryMusicPlaying());
 
-        StartCoroutine(StopHeartbeatAfterDelay(3f));
+        AudioStressController stress = FindFirstObjectByType<AudioStressController>();
+
+        if (stress != null)
+        {
+            StartCoroutine(StopHeartbeatDelayed(stress, 3f));
+        }
     }
 
 
@@ -235,17 +242,17 @@ public class ShipGameMode : MonoBehaviour
             PauseGame();
     }
 
+    private IEnumerator StopHeartbeatDelayed(AudioStressController stress, float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
+        stress.ResetHeartbeat();
+    }
+
     private void OnDisable()
     {
         StopAllCoroutines();
     }
 
-    private IEnumerator StopHeartbeatAfterDelay(float delay)
-    {
-        yield return new WaitForSecondsRealtime(delay);
-
-        AudioManager.Instance.StopHeartbeatSound();
-    }
 
 }
 

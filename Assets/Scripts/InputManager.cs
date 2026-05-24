@@ -112,6 +112,9 @@ public class InputManager : MonoBehaviour
 
     public bool PausePressed => AnyKeyDown(pauseKeys);
 
+    public bool NextWeaponPressed => Input.GetKeyDown(KeyCode.E);
+    public bool PreviousWeaponPressed => Input.GetKeyDown(KeyCode.Q);
+
     // public bool BombPressed => Input.GetKeyDown(bombKey);
 
     public Vector2 MoveInput
@@ -125,6 +128,7 @@ public class InputManager : MonoBehaviour
             if (Input.GetKey(rightKey)) x += 1f;
             if (Input.GetKey(upKey)) y += 1f;
             if (Input.GetKey(downKey)) y -= 1f;
+
 
             return new Vector2(x, y).normalized;
         }

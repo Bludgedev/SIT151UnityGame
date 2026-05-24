@@ -7,30 +7,47 @@ using UnityEngine.SceneManagement;
 
 public class PauseController : MonoBehaviour
 {
+    private OptionsMenu optionsMenu;
 
+    private enum MenuState { Gameplay, Pause, Options }
+    private MenuState currentMenu = MenuState.Gameplay;
 
     public static bool IsPaused => MusicManager.Instance.CurrentState == GameState.Pause;
 
     [Header("UI References")]
     public GameObject pauseMenuPanel;
-    public GameObject optionsPanel;
     public GameObject hudPanel;
 
     void Update()
     {
         if (InputManager.Instance == null) return;
 
-        if (!InputManager.Instance.PausePressed)
-                return;
+        if (!InputManager.Instance.PausePressed) return;
 
         if (currentMenu == MenuState.Options)
         {
-            OnBackPressed();
+            optionsMenu?.Back();
             return;
         }
 
-        SetPaused(Time.timeScale > 0f);
+        TogglePause();
         
+    }
+
+    private void Awake()
+    {
+        optionsMenu = FindAnyObjectByType<OptionsMenu>();
+        if(optionsMenu != null)
+        {
+            optionsMenu.OnBackPressedEvent += HandleOptionsBack;
+            optionsMenu.OnSavePressedEvent += HandleOptionsSave;
+        }
+    }
+
+    private void TogglePause()
+    {
+        if (currentMenu == MenuState.Pause) Resume();
+        else Pause();
     }
 
     public void OnResumePressed()
@@ -48,23 +65,20 @@ public class PauseController : MonoBehaviour
     public void OnOptionsPressed()
     {
         currentMenu = MenuState.Options;
-        if (pauseMenuPanel != null) 
-            pauseMenuPanel.SetActive(false);
-        if (optionsPanel != null)
-            optionsPanel.SetActive(true);
+        pauseMenuPanel?.SetActive(false);
+        optionsMenu?.gameObject.SetActive(true);
     }
 
-    public void OnBackPressed()
+    private void HandleOptionsBack()
     {
-        switch (currentMenu)
-        {
-            case MenuState.Options:
-                currentMenu = MenuState.Pause;
+        currentMenu = MenuState.Pause;
+        optionsMenu?.gameObject.SetActive(false);
+        pauseMenuPanel?.SetActive(true);
+    }
 
-                optionsPanel.SetActive(false);
-                pauseMenuPanel.SetActive(true);
-                break;
-        }
+    private void HandleOptionsSave()
+    {
+
     }
 
     public void OnQuitPressed()
@@ -85,16 +99,10 @@ public class PauseController : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        if (pauseMenuPanel != null)
-            pauseMenuPanel.SetActive(true);
-
-        if (optionsPanel != null)
-            optionsPanel.SetActive(false);
-
-        if (hudPanel != null)
-            hudPanel.SetActive(false);
-
- 
+        pauseMenuPanel?.SetActive(true);
+        optionsMenu?.gameObject.SetActive(false);
+        hudPanel?.SetActive(false);
+         
     }
 
 
@@ -104,16 +112,10 @@ public class PauseController : MonoBehaviour
         currentMenu = MenuState.Gameplay;
         Time.timeScale = 1f;
 
-        if (pauseMenuPanel != null)
-            pauseMenuPanel.SetActive(false);
-
-        if(optionsPanel != null)
-            optionsPanel.SetActive(false);
-
-        if (hudPanel != null)
-            hudPanel.SetActive(true);
-
-
+        pauseMenuPanel?.SetActive(false);
+        optionsMenu?.gameObject.SetActive(false);
+        hudPanel?.SetActive(true);
+               
     }
 
     public void QuitToMainMenu()
@@ -126,14 +128,6 @@ public class PauseController : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
-    private enum MenuState
-    {
-        Gameplay,
-        Pause, 
-        Options
-    }
-
-    private MenuState currentMenu = MenuState.Gameplay;
 
 
     private enum InputMode
@@ -149,7 +143,7 @@ public class PauseController : MonoBehaviour
         Time.timeScale = paused ? 0f : 1f;
 
         pauseMenuPanel?.SetActive(paused);
-        optionsPanel?.SetActive(false);
+        optionsMenu?.gameObject.SetActive(false);
         hudPanel?.SetActive(!paused);
 
         if (paused)

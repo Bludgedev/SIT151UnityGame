@@ -22,12 +22,13 @@ public class EnemySnake : EnemyBase
     private List<Transform> allSegments = new List<Transform>();
     private List<Vector3> positionHistory = new List<Vector3>();
 
-    protected override void Start()
-    {
-        base.Start();
+    private float baseY;
 
+    private void Start()
+    {
         BuildSegmentList();
         SetupSegments();
+        baseY = head.position.y;
 
         positionHistory.Add(head.position);
     }
@@ -45,7 +46,7 @@ public class EnemySnake : EnemyBase
 
         pos.x += moveDirection * speed * Time.deltaTime;
 
-        pos.y += Mathf.Sin(pos.x * waveFrequency) * waveAmplitude;
+        pos.y = baseY + Mathf.Sin(Time.time * waveFrequency) * waveAmplitude;
 
         head.position = pos;
     }
@@ -129,4 +130,6 @@ public class EnemySnake : EnemyBase
             Die();
         }
     }
+
+   
 }

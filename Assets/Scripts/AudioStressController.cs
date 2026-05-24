@@ -1,140 +1,162 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
+
 
 public class AudioStressController : MonoBehaviour
 {
     [Header("References")]
-    public PlayerShipController player;
+    [SerializeField] private PlayerHealth playerHealth;
+    [SerializeField] private AudioMixer mixer;
+
+    [Header("Heartbeat")]
+    [SerializeField] private float heartbeatStartThreshold = 0.5f;
+    [SerializeField] private float minDelay = 0.25f;
+    [SerializeField] private float maxDelay = 1.2f;
+
+    [Header("Lowpass")]
+    [SerializeField] private AudioLowPassFilter musicFilter;
+    [SerializeField] private float normalCutoff = 22000f;
+    [SerializeField] private float stressedCutoff = 500f;
+
+    [Header("Game Over")]
+    [SerializeField] private float postDeathHeartbeatTime = 2.5f;
+
     private AudioSource heartbeatSource;
-    public AudioClip heartbeatClip;
-    public AudioLowPassFilter musicLowPass;
-    
-
-    [Header("Heartbeat Settings")]
-    public float heartbeatStartHP = 50f;
-    public float maxHeartbeatRate = 0.25f; // fastest delay
-    public float minHeartbeatRate = 1.2f;   // slowest delay
-
-    [Header("Music Filter Settings")]
-    public float filterStartHP = 35f;
-    public float normalCutoff = 22000f;
-    public float stressedCutoff = 500f;
-
-    [Header("Smoothing")]
-    public float smoothingSpeed = 5f;
-
-    [Header("Curves")]
-    public AnimationCurve heartbeatCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    public AnimationCurve filterCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-
+    [SerializeField] private AudioClip heartbeatClip;
     private Coroutine heartbeatRoutine;
-    private float heartbeatIntensity;
-    private bool heartbeatActive;
+    private float intensity;
+    private bool isDeadSequence;
 
-    void Update()
+
+
+    private void Awake()
     {
-        if (player == null) return;
-        float hp = player.health;
-
-        UpdateHeartbeat(hp);
-        UpdateMusicFilter(hp);
-    }
-
-    void Awake()
-    {
-        Debug.Log("AudioStressController AWAKE on: " + gameObject.name);
-
         heartbeatSource = gameObject.AddComponent<AudioSource>();
         heartbeatSource.playOnAwake = false;
         heartbeatSource.loop = false;
     }
 
-    // --------------------------
-    // HEARTBEAT SYSTEM
-    // --------------------------
-    void UpdateHeartbeat(float hp)
+    private void OnEnable()
     {
-        if (hp <= heartbeatStartHP)
-        {
-            if (heartbeatRoutine == null)
-            {
-                heartbeatRoutine = StartCoroutine(HeartbeatLoop());
-                heartbeatActive = true;
-            }
+        playerHealth.OnHealthPercentChanged += HandleHealth;
+        playerHealth.OnDeath += HandleDeath;
+        playerHealth.OnHealed += HandleHeal;
+    }
 
-            float t = Mathf.InverseLerp(heartbeatStartHP, 0f, hp);
-            heartbeatIntensity = heartbeatCurve.Evaluate(t);
+    private void OnDisable()
+    {
+        playerHealth.OnHealthPercentChanged -= HandleHealth;
+        playerHealth.OnDeath -= HandleDeath;
+        playerHealth.OnHealed -= HandleHeal;
+    }
+
+    //====================================================
+    // HEALTH INPUT
+    //====================================================
+
+    private void HandleHealth(float percent)
+    {
+        if (isDeadSequence)
+            return;
+
+        if (percent <= heartbeatStartThreshold)
+        {
+            intensity = Mathf.InverseLerp(heartbeatStartThreshold, 0f, percent);
+
+            if (heartbeatRoutine == null)
+                heartbeatRoutine = StartCoroutine(HeartbeatLoop());
         }
         else
         {
-            if (heartbeatActive)
-            {
-                StopHeartbeat();
-            }
+            StopHeartbeat();
         }
+
+        UpdateLowPass(percent);
     }
 
-    void StopHeartbeat()
+    private void HandleHeal()
     {
-        heartbeatActive = false;
-        heartbeatIntensity = 0f;
+        StopHeartbeat();
+        UpdateLowPass(1f);
+    }
 
+    //====================================================
+    // HEARTBEAT LOOP
+    //====================================================
+
+    private IEnumerator HeartbeatLoop()
+    {
+        while (!isDeadSequence)
+        {
+            float volume = Mathf.Lerp(0.2f, 1f, intensity);
+
+            heartbeatSource.PlayOneShot(heartbeatClip, volume);
+
+            float delay = Mathf.Lerp(maxDelay, minDelay, intensity);
+
+            yield return new WaitForSeconds(delay);
+        }
+
+        heartbeatRoutine = null;
+    }
+
+    private void StopHeartbeat()
+    {
         if (heartbeatRoutine != null)
         {
             StopCoroutine(heartbeatRoutine);
             heartbeatRoutine = null;
         }
-
-        if (heartbeatSource != null)
-        {
-            heartbeatSource.Stop();
-        }
     }
 
-    IEnumerator HeartbeatLoop()
-    {
-        while (true)
-        {
-            if (heartbeatSource == null || heartbeatClip == null)
-                yield break;
+    //====================================================
+    // LOW PASS FILTER
+    //====================================================
 
-            float volume = Mathf.Lerp(0.3f, 1f, heartbeatIntensity);
-           
+    private void UpdateLowPass(float percent)
+    {
+        if (musicFilter == null)
+            return;
+
+        float t = Mathf.InverseLerp(heartbeatStartThreshold, 0f, percent);
+        float cutoff = Mathf.Lerp(normalCutoff, stressedCutoff, t);
+
+        musicFilter.cutoffFrequency = cutoff;
+    }
+
+    //====================================================
+    // DEATH SEQUENCE
+    //====================================================
+
+    private void HandleDeath()
+    {
+        if (isDeadSequence)
+            return;
+
+        isDeadSequence = true;
+
+        StartCoroutine(DeathRoutine());
+    }
+
+    private IEnumerator DeathRoutine()
+    {
+        // keep heartbeat for cinematic tension
+        float timer = 0f;
+
+        while (timer < postDeathHeartbeatTime)
+        {
+            float volume = Mathf.Lerp(1f, 0.3f, timer / postDeathHeartbeatTime);
 
             heartbeatSource.PlayOneShot(heartbeatClip, volume);
 
-            float delay = Mathf.Lerp(minHeartbeatRate, maxHeartbeatRate, heartbeatIntensity);
-            yield return new WaitForSeconds(delay);
-        }
-    }
+            yield return new WaitForSeconds(0.3f);
 
-    // --------------------------
-    // MUSIC FILTER SYSTEM
-    // --------------------------
-    void UpdateMusicFilter(float hp)
-    {
-        if (musicLowPass == null) return;
-
-        float targetT;
-
-        if (hp <= filterStartHP)
-        {
-            targetT = Mathf.InverseLerp(filterStartHP, 0f, hp);
-            targetT = filterCurve.Evaluate(targetT);
-        }
-        else
-        {
-            targetT = 0f;
+            timer += 0.3f;
         }
 
-        float targetCutoff = Mathf.Lerp(normalCutoff, stressedCutoff, targetT);
-
-        musicLowPass.cutoffFrequency = Mathf.Lerp(
-            musicLowPass.cutoffFrequency,
-            targetCutoff,
-            Time.deltaTime * smoothingSpeed
-        );
+       
     }
 
     public void ResetHeartbeat()
@@ -145,17 +167,9 @@ public class AudioStressController : MonoBehaviour
             heartbeatRoutine = null;
         }
 
-        heartbeatActive = false;
-        heartbeatIntensity = 0f;
+        intensity = 0f;
 
         if (heartbeatSource != null)
-        {
             heartbeatSource.Stop();
-        }
-    }
-
-    void OnDisable()
-    {
-        StopHeartbeat();
     }
 }

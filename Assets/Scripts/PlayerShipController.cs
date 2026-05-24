@@ -6,77 +6,87 @@ using UnityEngine;
 public class PlayerShipController : MonoBehaviour
 {
     public GameObject bulletTemplate;
-    public float health = 100.0f;
     public ShipGameMode gameMode;
-
     public AudioClip shootClip;
+    public float RamDamage => ramDamage;
 
+    private PlayerHealth playerHealth;
     private Camera mainCamera;
 
-    [SerializeField]
-    private float screenPadding = 0.5f;
+    
+
+    [SerializeField] private float screenPadding = 0.5f;
+
+    [SerializeField] private float ramDamage = 5f;
+
+    [SerializeField] private AudioStressController audioStress;
+
+    [SerializeField] private WeaponController weaponController;
+
+    [SerializeField] private RuntimeAnimatorController explosionController;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
         mainCamera = Camera.main;
+    }
+
+    private void Awake()
+    {
+        playerHealth = GetComponent<PlayerHealth>();
+
+        weaponController = GetComponent<WeaponController>();
+
+        if (weaponController == null)
+        {
+            Debug.LogError("WeaponController missing on PlayerShip!");
+        }
+
+        if (playerHealth == null)
+        {
+            Debug.LogError("PlayerHealth missing on PlayerShip!");
+            return;
+        }
+
+        if (gameMode == null)
+        {
+            Debug.LogError("GameMode not assigned in Inspector!");
+            return;
+        }
+
+        playerHealth.OnDeath += gameMode.TriggerGameOver;
     }
 
     // Update is called once per frame
     void Update()
     {
-        /*
-         // spawns bullets when pressedw
-         if (Input.GetKeyDown(KeyCode.Space))
-         {
-             if (!gameMode.gameOver) //  stop bullets spawning when the ship is destroyed
-             {
-                 GameObject bullet = Instantiate(bulletTemplate, transform.position + new Vector3(0.0f, 0.6f, 0.0f), transform.rotation);
-                 GetComponent<AudioSource>().Play();
-             }
-         }
-
-         // directional movement, hard-coded to the WASD
-         if (Input.GetKey(KeyCode.A))
-          {
-              transform.position += new Vector3(-0.01f, 0.0f, 0.0f);
-          }
-
-          if (Input.GetKey(KeyCode.D))
-          {
-              transform.position += new Vector3(+0.01f, 0.0f, 0.0f);
-          }
-
-          if (Input.GetKey(KeyCode.W))
-          {
-              transform.position += new Vector3(0.00f, +0.01f, 0.0f);
-          }
-
-          if (Input.GetKey(KeyCode.S))
-          {
-              transform.position += new Vector3(0.00f, -0.01f, 0.0f);
-          }  */
-
+        
         if (gameMode != null && gameMode.CurrentState == GameState.GameOver)
             return;
 
-        // --- FIRE ---
-        if (InputManager.Instance != null && InputManager.Instance.FirePressed)
+        // --- WEAPON INPUT ---
+        if (InputManager.Instance.FirePressed)
         {
-            Instantiate(
-                bulletTemplate,
-                transform.position + new Vector3(0.0f, 0.6f, 0.0f),
-                transform.rotation
-            );
+            weaponController.FireCurrent();
 
-            if (AudioManager.Instance != null)
+            if (AudioManager.Instance != null && shootClip != null)
             {
                 AudioManager.Instance.PlaySFX(shootClip);
             }
-
-            AudioManager.Instance.PlaySFX(shootClip);
         }
+
+        if (InputManager.Instance.NextWeaponPressed)
+        {
+            weaponController.SwitchWeapon(+1);
+        }
+
+        if (InputManager.Instance.PreviousWeaponPressed)
+        {
+            weaponController.SwitchWeapon(-1);
+        }
+
 
         // --- MOVEMENT ---
         if (InputManager.Instance == null) return;
@@ -86,8 +96,8 @@ public class PlayerShipController : MonoBehaviour
         Vector3 direction = new Vector3(input.x, input.y, 0f);
         transform.position += direction * speed * Time.deltaTime;
 
-        // --- CLAMP TO CAMERA ---
-
+      
+        // --- Clamp to Camera ---
         Vector3 pos = transform.position;
 
         // Camera world bounds
@@ -111,27 +121,57 @@ public class PlayerShipController : MonoBehaviour
 
     }
 
-    void OnCollisionEnter(Collision collisionInfo)
+    private void OnCollisionEnter(Collision collisionInfo)
     {
-        if (collisionInfo.gameObject.CompareTag("EnemyShip")) 
-        { 
-            health = health - 05.0f; // updates health
-            Debug.Log("Current Health: " + health + ". Collision with: " + collisionInfo.gameObject.name);
-            EnemyBase enemy = collisionInfo.gameObject.GetComponent<EnemyBase>(); // gets the collision info from the enemy base class
-            if (enemy != null)
-            {
-                enemy.Die(); // tells objects with EnemyBase to die
-            } 
+        if (!collisionInfo.gameObject.CompareTag("EnemyShip"))
+            return;
 
-            if (health <= 0.0f)
-            {
-                gameMode.TriggerGameOver(); // switch game over flag to true
+        EnemyBase enemy = collisionInfo.gameObject.GetComponent<EnemyBase>();
 
-                GetComponent<Collider>().enabled = false;
-
-                GetComponent<SpriteRenderer>().enabled = false;
-            }
+        if (enemy != null)
+        {
+            // BOTH SIDES TAKE DAMAGE
+            playerHealth.TakeDamage(ramDamage);
+            enemy.TakeDamage(ramDamage);
         }
+
+        Debug.Log($"Collision with {collisionInfo.gameObject.name} - Ram damage applied");
+
+       
     }
-    
+
+    private void OnEnable()
+    {
+        playerHealth.OnDeath += HandleDeath;
+    }
+
+    private void OnDisable()
+    {
+        playerHealth.OnDeath -= HandleDeath;
+    }
+
+    private void HandleDeath()
+    {
+        Explode();
+    }
+
+    private void Explode()
+    {
+        GameObject fx = new GameObject("PlayerExplosionFX");
+
+        fx.transform.position = transform.position;
+        fx.transform.rotation = Quaternion.identity;
+
+        var sr = fx.AddComponent<SpriteRenderer>();
+        var anim = fx.AddComponent<Animator>();
+
+        anim.runtimeAnimatorController = explosionController;
+        sr.sortingOrder = 10;
+
+        Destroy(fx, 1f);
+
+        Destroy(gameObject);
+    }
+
+
 }

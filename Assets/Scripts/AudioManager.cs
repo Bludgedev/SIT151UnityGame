@@ -1,137 +1,140 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
 
-    [Header("SFX")]
-    public AudioSource sfxPrefab;
-    [Range(0f, 1f)] public float sfxVolume = 1f;
+    [Header("Mixer Groups")]
+    [SerializeField] private AudioMixerGroup sfxGroup;
+    [SerializeField] private AudioMixerGroup uiGroup;
 
-    [Header("UI Sounds")]
-    public AudioSource uiSfxPrefab;
-    [Range(0f, 1f)] public float uiVolume = 1f;
-    public AudioSource heartbeatSource;
-    public AudioClip heartbeatClip;
-    [Range(0f, 1f)] public float heartbeatVolume = 0.5f;
+    [Header("Explosions")]
+    [SerializeField] private AudioClip[] explosionClips;
 
     private const string SFX_KEY = "SFXVolume";
     private const string UI_KEY = "UIVolume";
 
-    public void Start()
-    {
-        uiVolume = PlayerPrefs.GetFloat(UI_KEY, 1f);
-        sfxVolume = PlayerPrefs.GetFloat(SFX_KEY, 1f);
-    }
+    private float sfxVolume = 1f;
+    private float uiVolume = 1f;
 
-    void Awake()
+    //===========
+    // INIT
+    //===========
+
+    private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        LoadSettings();
     }
 
-    // Method to play the heartbeat sound
-    public void PlayHeartbeatSound()
+    private void LoadSettings()
     {
-        if (heartbeatSource != null && heartbeatClip != null)
-        {
-            Debug.Log("Heartbeat PLAY called");
-            heartbeatSource.clip = heartbeatClip;
-            heartbeatSource.loop = true;
-            heartbeatSource.volume =heartbeatVolume; // Adjust the volume as needed
-            heartbeatSource.Play();
-        }
+        sfxVolume = PlayerPrefs.GetFloat(SFX_KEY, 1f);
+        uiVolume = PlayerPrefs.GetFloat(UI_KEY, 1f);
     }
 
-    // Method to stop the heartbeat sound
-    public void StopHeartbeatSound()
-    {
-        if (heartbeatSource != null)
-        {
-            heartbeatSource.Stop();
-        }
-    }
-
-
-
-
-    // ------------------------
-    // SFX Control
-    // ------------------------
-    public void SetSFXVolume(float value)
-    {
-        sfxVolume = Mathf.Clamp01(value);
-    }
+    //====================================================
+    // SFX
+    //====================================================
 
     public void PlaySFX(AudioClip clip, float volumeMultiplier = 1f)
     {
-        if (clip == null || sfxPrefab == null) return;
+        if (clip == null) return;
 
-        AudioSource source = Instantiate(sfxPrefab, transform);
-        source.clip = clip;
-        source.volume = sfxVolume * volumeMultiplier;
-        source.Play();
+        GameObject obj = new GameObject("SFX_" + clip.name);
+        obj.transform.SetParent(transform);
 
-        Destroy(source.gameObject, clip.length);
+        AudioSource src = obj.AddComponent<AudioSource>();
+
+        src.outputAudioMixerGroup = sfxGroup;
+        src.clip = clip;
+        src.volume = sfxVolume * volumeMultiplier;
+        src.spatialBlend = 0f;
+        src.playOnAwake = false;
+
+        src.Play();
+
+        Destroy(obj, clip.length);
     }
 
-    // ------------------------
-    // UI Sounds
-    // ------------------------
-    public void SetUIVolume(float value)
+    public void PlayExplosion()
     {
-        uiVolume = Mathf.Clamp01(value);
+        if (Instance == null || explosionClips == null || explosionClips.Length == 0)
+            return;
+
+        AudioClip clip = explosionClips[Random.Range(0, explosionClips.Length)];
+
+        PlaySFX(clip, Random.Range(0.9f, 1.1f));
     }
+
+    //====================================================
+    // UI
+    //====================================================
 
     public void PlayUISound(AudioClip clip)
     {
-        if (clip == null || sfxPrefab == null) return;
+        if (clip == null) return;
 
-        AudioSource source = Instantiate(sfxPrefab, transform);
-        source.clip = clip;
-        source.volume = uiVolume;
-        source.Play();
+        GameObject obj = new GameObject("UI_" + clip.name);
+        obj.transform.SetParent(transform);
 
-        Destroy(source.gameObject, clip.length);
+        AudioSource src = obj.AddComponent<AudioSource>();
 
+        src.outputAudioMixerGroup = uiGroup;
+        src.clip = clip;
+        src.volume = uiVolume;
+        src.spatialBlend = 0f;
+        src.playOnAwake = false;
+
+        src.Play();
+
+        Destroy(obj, clip.length);
     }
 
-    //------------------------
-    //  Save Settings
-    //------------------------
+    //====================================================
+    // VOLUME SETTINGS
+    //====================================================
+
+    public void SetSFXVolume(float value)
+    {
+        sfxVolume = Mathf.Clamp01(value);
+        PlayerPrefs.SetFloat(SFX_KEY, sfxVolume);
+    }
+
+    public void SetUIVolume(float value)
+    {
+        uiVolume = Mathf.Clamp01(value);
+        PlayerPrefs.SetFloat(UI_KEY, uiVolume);
+    }
+
     public void SaveSettings()
     {
-        PlayerPrefs.SetFloat(UI_KEY, uiVolume);
-        PlayerPrefs.SetFloat(SFX_KEY, sfxVolume);
         PlayerPrefs.Save();
     }
 
-    //-----------------------
-    //  Stop Audio
-    //-----------------------
-    //  This is to help with certain audio issues on restart/retry
+    //====================================================
+    // CLEANUP
+    //====================================================
+
     public void StopAllAudio()
     {
         StopAllCoroutines();
 
-        // stop all child audio sources (safe cleanup)
-        foreach (var source in GetComponentsInChildren<AudioSource>())
+        foreach (var src in GetComponentsInChildren<AudioSource>())
         {
-            source.Stop();
-            Destroy(source.gameObject);
+            src.Stop();
+            Destroy(src.gameObject);
         }
     }
-
-
-
 }

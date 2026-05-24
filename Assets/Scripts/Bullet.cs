@@ -2,28 +2,41 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
+public class Bullet : MonoBehaviour, IDamageDealer
 {
+    [Header("Movement")]
+    [SerializeField] private float speed = 10f;
 
-    public float speed;
+    [Header("Damage")]
+    [SerializeField] private float damage = 1f;
 
-    // Start is called before the first frame update
-    void Start()
+    private Vector3 direction = Vector3.up;
+
+    public float Damage => damage;
+
+    public void SetDirection(Vector3 dir)
     {
-        
+        direction = dir.normalized;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        transform.position += new Vector3(0.0f, speed, 0.0f);
+        transform.position += direction * speed * Time.deltaTime;
 
-        if (transform.position.y > 8.0f)
+        if (transform.position.y > 8f || transform.position.y < -8f)
         {
-            Destroy(this.gameObject);
-        };
+            Destroy(gameObject);
+        }
+    }
 
-        
+    private void OnTriggerEnter(Collider other)
+    {
+        EnemyBase enemy = other.GetComponentInParent<EnemyBase>();
 
+        if (enemy != null)
+        {
+            enemy.TakeDamage(Damage);
+            Destroy(gameObject);
+        }
     }
 }

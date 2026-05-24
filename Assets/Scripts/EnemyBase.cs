@@ -5,34 +5,29 @@ using UnityEngine;
 
 public class EnemyBase : MonoBehaviour
 {
-
-
     [Header("Movement")]
     public float speed = 2f;
+
+    [Header("Health")]
+    public float maxHealth = 1f;
+    protected float currentHealth;
 
     [Header("Death")]
     public RuntimeAnimatorController explosion;
     public float deathDelay = 2f;
 
     [Header("Cleanup")]
-    [SerializeField]
-    private bool destroyWhenOffscreen = true;
-
-    [Header("Health")]
-    public int maxHealth = 1;
-
-    protected int currentHealth;
+    [SerializeField] private bool destroyWhenOffscreen = true;
 
     protected bool hasBeenVisible = false;
     protected bool isDying = false;
+    private bool hasTakenHit = false;
+
+    
 
     protected virtual void Awake()
     {
         currentHealth = maxHealth;
-    }
-
-    protected virtual void Start()
-    {
     }
 
     protected virtual void Update()
@@ -41,61 +36,107 @@ public class EnemyBase : MonoBehaviour
         CheckOffscreenDestroy();
     }
 
-    //  This is to ensure an enemy has a default behaviour pattern
     protected virtual void Move()
     {
         transform.position += Vector3.down * speed * Time.deltaTime;
     }
 
-    //  the collision detection logic
-    protected virtual void OnCollisionEnter(Collision collisionInfo)
+    //====================================================
+    // DAMAGE SYSTEM (UNIVERSAL)
+    //====================================================
+
+
+    protected virtual void OnTriggerEnter(Collider other)
+    {
+        if (isDying || hasTakenHit)
+            return;
+
+        TryApplyDamage(other.gameObject);
+    }
+
+    protected virtual void OnCollisionEnter(Collision collision)
+    {
+        if (isDying || hasTakenHit)
+            return;
+
+        PlayerShipController player = collision.gameObject.GetComponent<PlayerShipController>();
+
+        if (player != null)
+        {
+            float ramDamage = player.RamDamage;
+
+            PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+
+            TakeDamage(ramDamage);
+            playerHealth.TakeDamage(ramDamage);
+        }
+    }
+
+
+    private void TryApplyDamage(GameObject other)
+    {
+        if (other.TryGetComponent<IDamageDealer>(out var damageDealer))
+        {
+            TakeDamage(damageDealer.Damage);
+        }
+    }
+
+    public virtual void TakeDamage(float damage)
+    {
+        if (isDying) return;
+
+        hasTakenHit = true;
+
+        currentHealth -= damage;
+        OnHit(damage);
+
+        if (currentHealth <= 0f)
+            Die();
+    }
+
+
+    protected virtual void OnHit(float damage)
+    {
+        // optional: flash, sound, particles
+    }
+
+    
+
+    //====================================================
+    // DEATH
+    //====================================================
+
+    public virtual void Die()
     {
         if (isDying)
             return;
 
-        Debug.Log(
-            "Hit: " +
-            gameObject.name +
-            " was hit by " +
-            collisionInfo.gameObject.name
-        );
-
-        if (collisionInfo.gameObject.CompareTag("Bullet"))
-        {
-            Destroy(collisionInfo.gameObject);
-            TakeDamage(1);
-        }
-    }
-
-    public virtual void Die()
-    {
-        if (isDying) 
-            return;
-        
         isDying = true;
+
+        AudioManager.Instance.PlayExplosion();
+
         StartCoroutine(DeathRoutine());
     }
 
     protected virtual IEnumerator DeathRoutine()
     {
-        Collider collider = GetComponent<Collider>();
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+            col.enabled = false;
 
-        if (collider != null)
-            collider.enabled = false;
-
-        Animator animator = GetComponent<Animator>();
-
-        if (animator != null && explosion != null)
-        {
-            animator.runtimeAnimatorController = explosion;
-        }
+        Animator anim = GetComponent<Animator>();
+        if (anim != null && explosion != null)
+            anim.runtimeAnimatorController = explosion;
 
         yield return new WaitForSecondsRealtime(deathDelay);
 
         Destroy(gameObject);
     }
 
-    //  tells us that enemy has been onscreen
+    //====================================================
+    // OFFSCREEN CLEANUP
+    //====================================================
+
     private void OnBecameVisible()
     {
         hasBeenVisible = true;
@@ -116,15 +157,5 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
-    //  For damage to apply to multi-health enemies
-    protected virtual void TakeDamage(int damage)
-    {
-        currentHealth -= damage;
-
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-    }
-
+    
 }
