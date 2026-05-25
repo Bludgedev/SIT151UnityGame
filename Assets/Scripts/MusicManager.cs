@@ -381,5 +381,14 @@ public class MusicManager : MonoBehaviour
         secondarySource.clip = null;
     }
 
-   
+
+    public void SetPaused(bool paused)
+    {
+        if (paused)
+            PauseMusic();
+        else
+            ResumeMusic();
+    }
+
+
 }

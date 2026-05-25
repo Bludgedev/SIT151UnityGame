@@ -1,8 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class WeaponUI : MonoBehaviour
 {
@@ -12,19 +13,25 @@ public class WeaponUI : MonoBehaviour
     [SerializeField] private Image weaponIcon;
     [SerializeField] private TextMeshProUGUI weaponNameText;
     [SerializeField] private TextMeshProUGUI weaponAmmoCountText;
+
     private void OnEnable()
     {
         weaponController.OnWeaponChanged += UpdateUI;
+
+        if (weaponController.Inventory != null)
+            weaponController.Inventory.OnAmmoChanged += HandleAmmoChanged;
     }
 
     private void OnDisable()
     {
         weaponController.OnWeaponChanged -= UpdateUI;
+
+        if (weaponController.Inventory != null)
+            weaponController.Inventory.OnAmmoChanged -= HandleAmmoChanged;
     }
 
     private void Start()
     {
-        // safety sync in case event fired before UI enabled
         if (weaponController.CurrentWeapon != null)
             UpdateUI(weaponController.CurrentWeapon);
     }
@@ -42,7 +49,21 @@ public class WeaponUI : MonoBehaviour
         UpdateAmmo(weapon);
     }
 
-    private void Update()
+    private void UpdateAmmo(IWeapon weapon)
+    {
+        if (!weapon.UsesAmmo)
+        {
+            weaponAmmoCountText.text = "Infinite";
+            return;
+        }
+
+        int current = weaponController.Inventory.GetCurrentAmmo(weapon.AmmoType);
+        int max = weaponController.Inventory.GetMaxAmmo(weapon.AmmoType);
+
+        weaponAmmoCountText.text = $"{current} / {max}";
+    }
+
+    private void HandleAmmoChanged()
     {
         if (weaponController.CurrentWeapon != null)
         {
@@ -50,16 +71,5 @@ public class WeaponUI : MonoBehaviour
         }
     }
 
-    private void UpdateAmmo(IWeapon weapon)
-    {
-        if (weapon.UsesAmmo)
-        {
-            weaponAmmoCountText.text = $"{weapon.CurrentAmmo} / {weapon.MaxAmmo}";
-        }
-        else
-        {
-            weaponAmmoCountText.text = "Infinite";
-        }
-    }
 
 }

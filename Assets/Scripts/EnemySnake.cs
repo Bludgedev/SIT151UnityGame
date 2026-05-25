@@ -33,6 +33,11 @@ public class EnemySnake : EnemyBase
         positionHistory.Add(head.position);
     }
 
+    protected override void Tick(float dt)
+    {
+        throw new System.NotImplementedException();
+    }
+
     protected override void Move()
     {
         MoveHead();

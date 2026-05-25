@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class EnemyBase : MonoBehaviour
+public abstract class EnemyBase : MonoBehaviour
 {
     [Header("Movement")]
     public float speed = 2f;
@@ -23,7 +23,7 @@ public class EnemyBase : MonoBehaviour
     protected bool isDying = false;
     private bool hasTakenHit = false;
 
-    
+    protected float dt;
 
     protected virtual void Awake()
     {
@@ -32,6 +32,8 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void Update()
     {
+        dt = GetDeltaTime();
+        Tick(dt);
         Move();
         CheckOffscreenDestroy();
     }
@@ -40,6 +42,19 @@ public class EnemyBase : MonoBehaviour
     {
         transform.position += Vector3.down * speed * Time.deltaTime;
     }
+
+    //====================================================
+    // SlowMo mechanics
+    //====================================================
+    protected virtual float GetDeltaTime()
+    {
+        if (TimeDilationSystem.Instance == null)
+            return Time.deltaTime;
+
+        return Time.deltaTime * TimeDilationSystem.Instance.WorldTimeScale;
+    }
+
+    protected abstract void Tick(float dt);
 
     //====================================================
     // DAMAGE SYSTEM (UNIVERSAL)

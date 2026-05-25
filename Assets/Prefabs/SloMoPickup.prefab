@@ -68,6 +68,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3414958801677209741}
   - component: {fileID: 5088148077017723425}
+  - component: {fileID: 7709754189949416590}
   m_Layer: 0
   m_Name: SensorSphere
   m_TagString: Untagged
@@ -108,6 +109,19 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.8
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7709754189949416590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2936453930383619369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d80903b57019e474c99f2666dd41a531, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attractionSpeed: 0.01
 --- !u!1 &3391467149483045489
 GameObject:
   m_ObjectHideFlags: 0
@@ -123,7 +137,7 @@ GameObject:
   - component: {fileID: -6485451627129536857}
   - component: {fileID: 172324083502512449}
   m_Layer: 0
-  m_Name: Item
+  m_Name: SloMoPickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -138,7 +152,7 @@ Transform:
   m_GameObject: {fileID: 3391467149483045489}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 1, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1220001591103550028}
@@ -231,6 +245,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25e98edd05ac4ac4a8583309ef24c7ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attractionSpeed: 5
+  rotatePickup: 1
+  rotationSpeed: 90
+  duration: 5
+  worldSlow: 0.4
+  bulletSlow: 0.6
+  playerSlow: 0.8
 --- !u!136 &-6485451627129536857
 CapsuleCollider:
   m_ObjectHideFlags: 0

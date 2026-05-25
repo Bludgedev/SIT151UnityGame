@@ -6,6 +6,9 @@ public class WeaponController : MonoBehaviour
 {
     [Header("Weapons")]
     [SerializeField] private List<MonoBehaviour> weaponBehaviours;
+    [SerializeField] private PlayerWeaponInventory inventory;
+
+    public PlayerWeaponInventory Inventory => inventory;
 
     public event Action<IWeapon> OnWeaponChanged;
 
@@ -27,29 +30,29 @@ public class WeaponController : MonoBehaviour
     {
         weapons.Clear();
 
-        if (weaponBehaviours == null || weaponBehaviours.Count == 0)
-        {
-            Debug.LogError("WeaponController: No weapons assigned in Inspector!");
-            return;
-        }
-
         foreach (var w in weaponBehaviours)
         {
             if (w is IWeapon weapon)
             {
                 weapons.Add(weapon);
+
+                // Inject inventory immediately
+                if (weapon is IInventoryUser user)
+                {
+                    user.SetInventory(inventory);
+                }
             }
             else
             {
-                Debug.LogError($"{w.name} does NOT implement IWeapon!");
+                Debug.LogError($"{w.name} does not implement IWeapon");
             }
         }
+    }
 
+    private void Start()
+    {
         if (weapons.Count > 0)
-        {
-            currentIndex = 0;
             OnWeaponChanged?.Invoke(CurrentWeapon);
-        }
     }
 
     private void Update()

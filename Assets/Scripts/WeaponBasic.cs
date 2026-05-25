@@ -7,7 +7,7 @@ public class WeaponBasic : MonoBehaviour, IWeapon
     [Header("UI Identity")]
     [SerializeField] private string weaponName = "Basic Blaster";
     [SerializeField] private Sprite weaponIcon;
-
+    [SerializeField] private AmmoType ammoType;
 
     [Header("Firing")]
     [SerializeField] private GameObject bulletPrefab;
@@ -16,11 +16,12 @@ public class WeaponBasic : MonoBehaviour, IWeapon
 
     [Header("Ammo")]
     [SerializeField] private bool usesAmmo = false;
-    [SerializeField] private int maxAmmo = -1;
+    //[SerializeField] private int maxAmmo = -1;
 
+    public AmmoType AmmoType => ammoType;
 
     private float nextFireTime;
-    private int currentAmmo;
+    
 
     // =========================
     // IWeapon (UI DATA)
@@ -28,8 +29,6 @@ public class WeaponBasic : MonoBehaviour, IWeapon
     public string WeaponName => weaponName;
     public Sprite WeaponIcon => weaponIcon;
     public bool UsesAmmo => usesAmmo;
-    public int CurrentAmmo => currentAmmo;
-    public int MaxAmmo => maxAmmo;
     public bool CanFire
     {
         get
@@ -37,8 +36,6 @@ public class WeaponBasic : MonoBehaviour, IWeapon
             if (Time.time < nextFireTime)
                 return false;
 
-            if (usesAmmo && currentAmmo <= 0)
-                return false;
 
             return true;
         }
@@ -46,7 +43,7 @@ public class WeaponBasic : MonoBehaviour, IWeapon
 
     private void Awake()
     {
-        currentAmmo = maxAmmo;
+       
     }
 
 

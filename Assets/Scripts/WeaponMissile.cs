@@ -2,39 +2,38 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponMissile : MonoBehaviour, IWeapon
+
+public class WeaponMissile : MonoBehaviour, IWeapon, IInventoryUser
 {
     [Header("UI")]
-    [SerializeField] private string weaponName = "Missile Launcher";
+    [SerializeField] private string weaponName = "Seeker Missile";
     [SerializeField] private Sprite weaponIcon;
 
     [Header("Ammo")]
-    [SerializeField] private int maxAmmo = 30;
-    [SerializeField] private bool usesAmmo = true;
+    [SerializeField] private AmmoType ammoType = AmmoType.Missile;
+
+    public AmmoType AmmoType => ammoType;
+    public bool UsesAmmo => true;
 
     [Header("Firing")]
     [SerializeField] private GameObject missilePrefab;
     [SerializeField] private Transform firePoint;
     [SerializeField] private float fireRate = 0.6f;
 
-    private int currentAmmo;
     private float nextFireTime;
+    private PlayerWeaponInventory inventory;
 
     public string WeaponName => weaponName;
     public Sprite WeaponIcon => weaponIcon;
 
-    public bool UsesAmmo => usesAmmo;
-    public int CurrentAmmo => currentAmmo;
-    public int MaxAmmo => maxAmmo;
-
     public bool CanFire =>
         Time.time >= nextFireTime &&
-        (!usesAmmo || currentAmmo > 0);
+        inventory != null &&
+        inventory.GetCurrentAmmo(ammoType) > 0;
 
-
-    private void Awake()
+    public void SetInventory(PlayerWeaponInventory inv)
     {
-        currentAmmo = maxAmmo;
+        inventory = inv;
     }
 
     public void Fire()
@@ -43,12 +42,11 @@ public class WeaponMissile : MonoBehaviour, IWeapon
 
         nextFireTime = Time.time + fireRate;
 
-        if (usesAmmo)
-            currentAmmo--;
+        if (!inventory.ConsumeAmmo(ammoType, 1))
+            return;
 
         Instantiate(missilePrefab, firePoint.position, firePoint.rotation);
     }
 
     public void Tick() { }
-
 }

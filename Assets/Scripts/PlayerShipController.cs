@@ -25,29 +25,24 @@ public class PlayerShipController : MonoBehaviour
 
     [SerializeField] private RuntimeAnimatorController explosionController;
 
-
+   
     // Start is called before the first frame update
     void Start()
     {
-
         mainCamera = Camera.main;
-    }
-
-    private void Awake()
-    {
+   
         playerHealth = GetComponent<PlayerHealth>();
-
-        weaponController = GetComponent<WeaponController>();
-
-        if (weaponController == null)
-        {
-            Debug.LogError("WeaponController missing on PlayerShip!");
-        }
 
         if (playerHealth == null)
         {
-            Debug.LogError("PlayerHealth missing on PlayerShip!");
-            return;
+            Debug.LogError("PlayerHealth missing on PlayerShip at Start!");
+        }
+    }
+    private void Awake()
+    {
+        if (weaponController == null)
+        {
+            Debug.LogError("WeaponController missing on PlayerShip!");
         }
 
         if (gameMode == null)
@@ -55,6 +50,9 @@ public class PlayerShipController : MonoBehaviour
             Debug.LogError("GameMode not assigned in Inspector!");
             return;
         }
+
+
+        playerHealth = GetComponent<PlayerHealth>();
 
         playerHealth.OnDeath += gameMode.TriggerGameOver;
     }
@@ -121,7 +119,7 @@ public class PlayerShipController : MonoBehaviour
 
     }
 
-    private void OnCollisionEnter(Collision collisionInfo)
+        private void OnCollisionEnter(Collision collisionInfo)
     {
         if (!collisionInfo.gameObject.CompareTag("EnemyShip"))
             return;
@@ -142,12 +140,20 @@ public class PlayerShipController : MonoBehaviour
 
     private void OnEnable()
     {
-        playerHealth.OnDeath += HandleDeath;
+        if (playerHealth != null)
+        {
+            playerHealth.OnDeath += HandleDeath;
+            playerHealth.OnDeath += gameMode.TriggerGameOver;
+        }
     }
 
     private void OnDisable()
     {
-        playerHealth.OnDeath -= HandleDeath;
+        if (playerHealth != null)
+        {
+            playerHealth.OnDeath -= HandleDeath;
+            playerHealth.OnDeath -= gameMode.TriggerGameOver;
+        }
     }
 
     private void HandleDeath()

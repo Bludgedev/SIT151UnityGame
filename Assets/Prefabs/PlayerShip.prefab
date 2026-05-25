@@ -46,8 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Seeker Missile
   weaponIcon: {fileID: 21300000, guid: a49ff287942ba90449cf6d797eaa97f1, type: 3}
-  maxAmmo: 30
-  usesAmmo: 1
+  ammoType: 0
   missilePrefab: {fileID: 3499475606607998540, guid: 9d514f9401a991a468639e6e83d46486, type: 3}
   firePoint: {fileID: 3743604393622725033}
   fireRate: 0.6
@@ -97,11 +96,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Blaster
   weaponIcon: {fileID: 21300000, guid: 5ed7074535dac6348bda04e91d174217, type: 3}
+  ammoType: 0
   bulletPrefab: {fileID: 6457289900067540133, guid: 3d83cd1ed464eaa42894a5d3348a7d5d, type: 3}
   firePoint: {fileID: 3743604393622725033}
   fireRate: 0.2
   usesAmmo: 0
-  maxAmmo: -1
 --- !u!1 &4157924582807998500
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,6 +182,7 @@ GameObject:
   - component: {fileID: 2545001420381049418}
   - component: {fileID: -7670014986216287344}
   - component: {fileID: -6515977646301995905}
+  - component: {fileID: 8771042677905629418}
   m_Layer: 0
   m_Name: PlayerShip
   m_TagString: Player
@@ -293,13 +293,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletTemplate: {fileID: 0}
-  health: 100
   gameMode: {fileID: 0}
   shootClip: {fileID: 0}
   screenPadding: 0.5
   ramDamage: 5
   audioStress: {fileID: 0}
   weaponController: {fileID: -7670014986216287344}
+  explosionController: {fileID: 0}
 --- !u!136 &2547132482255961443
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -441,6 +441,7 @@ MonoBehaviour:
   weaponBehaviours:
   - {fileID: 3240944156253127632}
   - {fileID: 4053503286447313301}
+  inventory: {fileID: 8771042677905629418}
 --- !u!114 &-6515977646301995905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -454,3 +455,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+--- !u!114 &8771042677905629418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7082733641327667780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0e55274252bab343b15bb6735609db2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ammoList:
+  - type: 0
+    current: 5
+    max: 20

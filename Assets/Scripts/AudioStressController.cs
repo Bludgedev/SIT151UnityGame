@@ -19,7 +19,7 @@ public class AudioStressController : MonoBehaviour
     [SerializeField] private AudioLowPassFilter musicFilter;
     [SerializeField] private float normalCutoff = 22000f;
     [SerializeField] private float stressedCutoff = 500f;
-
+    
     [Header("Game Over")]
     [SerializeField] private float postDeathHeartbeatTime = 2.5f;
 
@@ -28,7 +28,7 @@ public class AudioStressController : MonoBehaviour
     private Coroutine heartbeatRoutine;
     private float intensity;
     private bool isDeadSequence;
-
+    public static AudioStressController Instance;
 
 
     private void Awake()
@@ -36,6 +36,14 @@ public class AudioStressController : MonoBehaviour
         heartbeatSource = gameObject.AddComponent<AudioSource>();
         heartbeatSource.playOnAwake = false;
         heartbeatSource.loop = false;
+
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
     }
 
     private void OnEnable()
@@ -73,7 +81,7 @@ public class AudioStressController : MonoBehaviour
             StopHeartbeat();
         }
 
-        UpdateLowPass(percent);
+        ApplyStressToMusic(percent);
     }
 
     private void HandleHeal()
@@ -126,6 +134,11 @@ public class AudioStressController : MonoBehaviour
         musicFilter.cutoffFrequency = cutoff;
     }
 
+    private void ApplyStressToMusic(float percent)
+    {
+        MusicManager.Instance.SetStress(1f - percent);
+    }
+
     //====================================================
     // DEATH SEQUENCE
     //====================================================
@@ -172,4 +185,15 @@ public class AudioStressController : MonoBehaviour
         if (heartbeatSource != null)
             heartbeatSource.Stop();
     }
+
+    public void SetActive(bool active)
+    {
+        if (!active)
+        {
+            ResetHeartbeat();
+            StopHeartbeat();
+        }
+    }
+
+
 }

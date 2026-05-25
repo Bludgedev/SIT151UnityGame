@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8290560931310333227}
   - component: {fileID: 8290560931310333226}
   - component: {fileID: 8290560931310333229}
+  - component: {fileID: 7824611510804826133}
   m_Layer: 0
   m_Name: enemy-big001
   m_TagString: Untagged
@@ -106,3 +107,15 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7824611510804826133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8290560931310333228}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2550c6702135a144834d8f6456dc3ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

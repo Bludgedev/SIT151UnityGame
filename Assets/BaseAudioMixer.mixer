@@ -6,13 +6,14 @@ AudioMixerGroupController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Sound
+  m_Name: Gameplay
   m_AudioMixer: {fileID: 24100000}
   m_GroupID: 8842c9132055c8843873095839bf5307
   m_Children:
-  - {fileID: 6017984630305586729}
+  - {fileID: 2134771409489056365}
   - {fileID: 5646530777385938848}
   - {fileID: 789149805098058130}
+  - {fileID: -185841261086711730}
   m_Volume: 9eb9c9535f6e9894fb3cae6173417b70
   m_Pitch: 977c868fc96ab49488837c933fc0b7d5
   m_Send: 00000000000000000000000000000000
@@ -46,6 +47,20 @@ AudioMixerEffectController:
   m_EffectID: 72cadd9abd049954d91175a5a5e533c0
   m_EffectName: Attenuation
   m_MixLevel: b25e3efc2b5ffd24dbf505a375c0c452
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
+--- !u!244 &-5600921263418654250
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 44fb4f6d3ebd6de4481451b0a146e332
+  m_EffectName: Attenuation
+  m_MixLevel: 9a02855b3d6173e4fbeb25c4204babc1
   m_Parameters: []
   m_SendTarget: {fileID: 0}
   m_EnableWetMix: 0
@@ -97,6 +112,25 @@ AudioMixerGroupController:
   m_Mute: 0
   m_Solo: 0
   m_BypassEffects: 0
+--- !u!243 &-185841261086711730
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Sound
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: aad85cf6a0945f54987f7fe50e89e10e
+  m_Children: []
+  m_Volume: adcf7fe60127dde4e82d381eafb4aafe
+  m_Pitch: 418f3dd37f3db614d99304eafb0bbe90
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: -5600921263418654250}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
 --- !u!241 &24100000
 AudioMixerController:
   m_ObjectHideFlags: 0
@@ -130,6 +164,7 @@ AudioMixerController:
     - a9f99393934bf82439afae3c87f98234
     - 63845b399afe3664e813fd93fd278a40
     - 0c4f522c7b1fdbf45866a9ec82e19e51
+    - aad85cf6a0945f54987f7fe50e89e10e
     name: View
   m_CurrentViewIndex: 0
   m_TargetSnapshot: {fileID: 24500006}
@@ -143,7 +178,7 @@ AudioMixerGroupController:
   m_AudioMixer: {fileID: 24100000}
   m_GroupID: 357c8b21cc664e44eaa627885aecc134
   m_Children:
-  - {fileID: 2134771409489056365}
+  - {fileID: 6017984630305586729}
   - {fileID: -7218770115884561953}
   - {fileID: -2789403619712923286}
   m_Volume: e2ac67217ae56bb4fb88f56dc20936ec

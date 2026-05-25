@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bullet : MonoBehaviour, IDamageDealer
+public class Bullet : ProjectileBase, IDamageDealer
 {
     [Header("Movement")]
     [SerializeField] private float speed = 10f;
@@ -19,16 +19,8 @@ public class Bullet : MonoBehaviour, IDamageDealer
         direction = dir.normalized;
     }
 
-    private void Update()
-    {
-        transform.position += direction * speed * Time.deltaTime;
 
-        if (transform.position.y > 8f || transform.position.y < -8f)
-        {
-            Destroy(gameObject);
-        }
-    }
-
+    
     private void OnTriggerEnter(Collider other)
     {
         EnemyBase enemy = other.GetComponentInParent<EnemyBase>();
@@ -39,4 +31,16 @@ public class Bullet : MonoBehaviour, IDamageDealer
             Destroy(gameObject);
         }
     }
+
+
+    protected override void Tick(float dt)
+    {
+        transform.position += direction * speed * dt;
+
+        if (transform.position.y > 8f || transform.position.y < -8f)
+        {
+            Destroy(gameObject);
+        }
+    }
+
 }

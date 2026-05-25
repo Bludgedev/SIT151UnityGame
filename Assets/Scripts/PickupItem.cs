@@ -4,27 +4,41 @@ using UnityEngine;
 
 public class PickupItem : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    private PickupBase pickup;
 
-    // Update is called once per frame
-    void Update()
+    private void Awake()
     {
-        
-    }
+        pickup = GetComponentInParent<PickupBase>();
 
-    private void OnTriggerStay(Collider other)
-    {
-        Debug.Log("TouchSphere triggered with: " + other.name); 
-        if (other.gameObject.CompareTag("Player"))
+        if (pickup == null)
         {
-            Debug.Log("Collecting item, destroying parent...");
-            PlayerShipController player = other.gameObject.GetComponent<PlayerShipController>();
-            player.gameMode.itemsCollected += 1;
-            Destroy(transform.parent.gameObject, 0.01f);
+            Debug.LogError("No PickupBase attached to: " + gameObject.name);
         }
+
+        Debug.Log("ROOT: " + transform.root.name);
+
+        var comps = transform.root.GetComponents<MonoBehaviour>();
+        foreach (var c in comps)
+        {
+            Debug.Log("ROOT COMPONENT: " + c.GetType().Name);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("TouchSphere triggered with: " + other.name);
+
+        if (!other.CompareTag("Player"))
+            return;
+
+        if (pickup == null)
+        {
+            Debug.LogError("PickupBase reference missing on " + gameObject.name);
+            return;
+        }
+
+        Debug.Log("Collecting " + gameObject.name);
+
+        pickup.TriggerCollect(other.gameObject);
     }
 }

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class Missile : MonoBehaviour, IDamageDealer
+public class Missile : ProjectileBase, IDamageDealer
 {
     [Header("Movement")]
     [SerializeField] private float speed = 8f;
-    [SerializeField] private float turnSpeed = 200f;
+   // [SerializeField] private float turnSpeed = 200f;
     [SerializeField] private float trackingStrength = 5f;
     [SerializeField] private float maxTurnAngle = 30f;
     [SerializeField] private float lifetime = 5f;
@@ -31,7 +31,7 @@ public class Missile : MonoBehaviour, IDamageDealer
         AcquireTarget();
     }
 
-    private void Update()
+    protected override void Tick(float dt)
     {
         if (target == null)
             AcquireTarget();
@@ -44,17 +44,15 @@ public class Missile : MonoBehaviour, IDamageDealer
             Vector3 desiredDir = toTarget.normalized;
             Vector3 currentDir = moveDir.normalized;
 
-            float steeringAngle = Vector3.SignedAngle(currentDir, desiredDir, Vector3.forward);
-
-            float maxStep = maxTurnAngle * trackingStrength * Time.deltaTime;
-
-            float turn = Mathf.Clamp(steeringAngle, -maxStep, maxStep);
-
-            moveDir = Quaternion.AngleAxis(turn, Vector3.forward) * currentDir;
+            moveDir = Vector3.Slerp(
+                currentDir,
+                desiredDir,
+                trackingStrength * dt
+            );
         }
 
         // Move forward
-        Vector3 movement = moveDir.normalized * speed * Time.deltaTime;
+        Vector3 movement = moveDir.normalized * speed * dt;
         movement.z = 0f;
         transform.position += movement;
 
@@ -62,13 +60,12 @@ public class Missile : MonoBehaviour, IDamageDealer
         float angle = Mathf.Atan2(moveDir.y, moveDir.x) * Mathf.Rad2Deg - 90f;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
-        lifeTimer += Time.deltaTime;
+        lifeTimer += dt;
 
         if (lifeTimer >= lifetime)
         {
             Explode();
         }
-
     }
 
 
