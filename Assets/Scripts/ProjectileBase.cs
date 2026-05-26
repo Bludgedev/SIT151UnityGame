@@ -18,8 +18,20 @@ public abstract class ProjectileBase : MonoBehaviour
 
     protected virtual void OnTriggerEnter(Collider other)
     {
-        OnHit(other);
+        Debug.Log($"HIT: {name} -> {other.name}");
+
+        var dmg = other.GetComponentInParent<IDamageable>();
+
+        Debug.Log($"HAS IDAMAGEABLE? {(dmg != null)}");
+
+        if (dmg != null)
+        {
+            dmg.TakeDamage(1f);
+            Debug.Log("DAMAGE APPLIED");
+        }
     }
+
+
 
     protected abstract void OnHit(Collider other);
 }

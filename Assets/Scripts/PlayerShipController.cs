@@ -12,8 +12,8 @@ public class PlayerShipController : MonoBehaviour
 
     private PlayerHealth playerHealth;
     private Camera mainCamera;
+    private Rigidbody rb;
 
-    
 
     [SerializeField] private float screenPadding = 0.5f;
 
@@ -39,26 +39,12 @@ public class PlayerShipController : MonoBehaviour
         }
 
 
-        var rb = GetComponent<Rigidbody>();
-
-        if (rb == null)
-        {
-            Debug.LogError($"{name}: NO RIGIDBODY");
-            return;
-        }
-
-        Debug.Log(
-            $"{name} RB STATE:\n" +
-            $"isKinematic={rb.isKinematic}\n" +
-            $"useGravity={rb.useGravity}\n" +
-            $"constraints={rb.constraints}\n" +
-            $"mass={rb.mass}"
-        );
-
-
     }
+
     private void Awake()
     {
+        rb = GetComponent<Rigidbody>();
+
         if (weaponController == null)
         {
             Debug.LogError("WeaponController missing on PlayerShip!");
@@ -117,13 +103,18 @@ public class PlayerShipController : MonoBehaviour
 
 
         // --- MOVEMENT ---
-        if (InputManager.Instance == null) return;
+        Rigidbody rb = GetComponent<Rigidbody>();
+
         Vector2 input = InputManager.Instance.MoveInput;
 
-        float speed = 5f; // tweak this instead of hardcoding 0.01
         Vector3 direction = new Vector3(input.x, input.y, 0f);
-        GetComponent<Rigidbody>().MovePosition(transform.position + direction * speed * Time.deltaTime);
 
+        if (direction.sqrMagnitude > 1f)
+            direction.Normalize();
+
+        float speed = 8f;
+
+        rb.MovePosition(rb.position + direction * speed * Time.deltaTime);
 
         // --- Clamp to Camera ---
         Vector3 pos = transform.position;

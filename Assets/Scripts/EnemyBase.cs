@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public abstract class EnemyBase : MonoBehaviour
+public abstract class EnemyBase : MonoBehaviour, IDamageable
 {
     [Header("Movement")]
     public float speed = 2f;
@@ -24,20 +24,13 @@ public abstract class EnemyBase : MonoBehaviour
 
     protected float dt;
 
+    private float debugTimer;
+
     protected virtual void Awake()
     {
         currentHealth = maxHealth;
 
-        var col = GetComponent<Collider>();
-
-        if (col == null)
-        {
-            Debug.LogError($"{name}: NO COLLIDER");
-        }
-        else
-        {
-            Debug.Log($"{name} Collider: isTrigger={col.isTrigger}");
-        }
+        
     }
 
     protected virtual void Update()
@@ -46,6 +39,8 @@ public abstract class EnemyBase : MonoBehaviour
         Tick(dt);
         Move();
         CheckOffscreenDestroy();
+
+        
     }
 
     protected virtual void Move()
@@ -75,11 +70,27 @@ public abstract class EnemyBase : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("ENEMY TRIGGERED BY: " + other.name);
         if (isDying) return;
 
         if (other.TryGetComponent<IDamageDealer>(out var dealer))
         {
             CombatResolver.DealDirectDamage(other.gameObject, gameObject, dealer.Damage);
+        }
+    }
+
+    public virtual void TakeDamage(float damage)
+    {
+        if (isDying)
+            return;
+
+        currentHealth -= damage;
+
+        Debug.Log($"{name} took {damage}, HP = {currentHealth}");
+
+        if (currentHealth <= 0f)
+        {
+            Die();
         }
     }
 
@@ -137,4 +148,7 @@ public abstract class EnemyBase : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    
+
 }

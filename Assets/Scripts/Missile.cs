@@ -68,11 +68,14 @@ public class Missile : ProjectileBase, IDamageDealer
         }
     }
 
+    protected override void OnTriggerEnter(Collider other)
+    {
+        Debug.Log($"TRIGGER HIT: {name} -> {other.name}");
+        Explode();
+    }
+
     protected override void OnHit(Collider other)
     {
-        // Missile does NOT directly deal damage anymore
-        // It just triggers explosion logic
-
         Explode();
     }
 
@@ -138,19 +141,6 @@ public class Missile : ProjectileBase, IDamageDealer
     }
 
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        Debug.Log($"[COLLISION ENTER] {name} hit {collision.gameObject.name}");
-    }
-
-    private void OnCollisionStay(Collision collision)
-    {
-        Debug.Log($"[COLLISION STAY] {name} touching {collision.gameObject.name}");
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-        Debug.Log($"[COLLISION EXIT] {name} left {collision.gameObject.name}");
-    }
+    
 
 }
