@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 299189388198726516}
   - component: {fileID: 4053503286447313301}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Missile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -60,7 +60,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7168477053031950653}
   - component: {fileID: 3240944156253127632}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Blaster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -110,7 +110,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1555449700042558786}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: WeaponHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -143,7 +143,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3743604393622725033}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: -7670014986216287344}
   - component: {fileID: -6515977646301995905}
   - component: {fileID: 8771042677905629418}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlayerShip
   m_TagString: Player
   m_Icon: {fileID: 0}

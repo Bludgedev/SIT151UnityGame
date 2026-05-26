@@ -21,13 +21,23 @@ public abstract class EnemyBase : MonoBehaviour
 
     protected bool hasBeenVisible = false;
     protected bool isDying = false;
-    private bool hasTakenHit = false;
 
     protected float dt;
 
     protected virtual void Awake()
     {
         currentHealth = maxHealth;
+
+        var col = GetComponent<Collider>();
+
+        if (col == null)
+        {
+            Debug.LogError($"{name}: NO COLLIDER");
+        }
+        else
+        {
+            Debug.Log($"{name} Collider: isTrigger={col.isTrigger}");
+        }
     }
 
     protected virtual void Update()
@@ -40,7 +50,7 @@ public abstract class EnemyBase : MonoBehaviour
 
     protected virtual void Move()
     {
-        transform.position += Vector3.down * speed * Time.deltaTime;
+        GetComponent<Rigidbody>().MovePosition(transform.position + Vector3.down * speed * Time.deltaTime);
     }
 
     //====================================================
@@ -59,63 +69,19 @@ public abstract class EnemyBase : MonoBehaviour
     //====================================================
     // DAMAGE SYSTEM (UNIVERSAL)
     //====================================================
+    // NOTE:
+    // All damage is handled externally via CombatResolver.
 
 
-    protected virtual void OnTriggerEnter(Collider other)
-    {
-        if (isDying || hasTakenHit)
-            return;
-
-        TryApplyDamage(other.gameObject);
-    }
-
-    protected virtual void OnCollisionEnter(Collision collision)
-    {
-        if (isDying || hasTakenHit)
-            return;
-
-        PlayerShipController player = collision.gameObject.GetComponent<PlayerShipController>();
-
-        if (player != null)
-        {
-            float ramDamage = player.RamDamage;
-
-            PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
-
-            TakeDamage(ramDamage);
-            playerHealth.TakeDamage(ramDamage);
-        }
-    }
-
-
-    private void TryApplyDamage(GameObject other)
-    {
-        if (other.TryGetComponent<IDamageDealer>(out var damageDealer))
-        {
-            TakeDamage(damageDealer.Damage);
-        }
-    }
-
-    public virtual void TakeDamage(float damage)
+    private void OnTriggerEnter(Collider other)
     {
         if (isDying) return;
 
-        hasTakenHit = true;
-
-        currentHealth -= damage;
-        OnHit(damage);
-
-        if (currentHealth <= 0f)
-            Die();
+        if (other.TryGetComponent<IDamageDealer>(out var dealer))
+        {
+            CombatResolver.DealDirectDamage(other.gameObject, gameObject, dealer.Damage);
+        }
     }
-
-
-    protected virtual void OnHit(float damage)
-    {
-        // optional: flash, sound, particles
-    }
-
-    
 
     //====================================================
     // DEATH
@@ -152,12 +118,12 @@ public abstract class EnemyBase : MonoBehaviour
     // OFFSCREEN CLEANUP
     //====================================================
 
-    private void OnBecameVisible()
+    protected virtual void OnBecameVisible()
     {
         hasBeenVisible = true;
     }
 
-    private void CheckOffscreenDestroy()
+    protected virtual void CheckOffscreenDestroy()
     {
         if (!destroyWhenOffscreen)
             return;
@@ -171,6 +137,4 @@ public abstract class EnemyBase : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-    
 }

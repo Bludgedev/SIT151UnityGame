@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 8290560931310333226}
   - component: {fileID: 8290560931310333229}
   - component: {fileID: 7824611510804826133}
-  m_Layer: 0
+  - component: {fileID: 7627768693374552873}
+  m_Layer: 7
   m_Name: enemy-big001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,6 +117,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 8290560931310333228}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2550c6702135a144834d8f6456dc3ba, type: 3}
+  m_Script: {fileID: 11500000, guid: 4a49bba8149af4f48a1986f33eb9fc5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speed: 1
+  maxHealth: 6
+  explosion: {fileID: 9100000, guid: f0bcc492b85a4654fa7f7c845fa6a9bb, type: 2}
+  deathDelay: 2
+  destroyWhenOffscreen: 1
+--- !u!136 &7627768693374552873
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8290560931310333228}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.17
+  m_Height: 0.32
+  m_Direction: 1
+  m_Center: {x: 0, y: -0.02, z: 0}

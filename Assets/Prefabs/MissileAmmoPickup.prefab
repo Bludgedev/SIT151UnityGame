@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9107792098300187713}
   - component: {fileID: 4652173703163441557}
   - component: {fileID: 7030510053522844846}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: SensorSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,7 +75,7 @@ GameObject:
   - component: {fileID: 7038300912529576156}
   - component: {fileID: 3625617657104076640}
   - component: {fileID: 3393618778583561997}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: TouchSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -139,7 +139,7 @@ GameObject:
   - component: {fileID: 8832092140952643945}
   - component: {fileID: 91354389972127210}
   - component: {fileID: 2157576096740316857}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: MissileAmmoPickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}

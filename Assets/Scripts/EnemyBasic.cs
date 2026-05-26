@@ -19,4 +19,40 @@ public class EnemyBasic : EnemyBase
     {
         transform.position += Vector3.down * speed * Time.deltaTime;
     }
+
+    private void Start()
+    {
+        var rb = GetComponent<Rigidbody>();
+
+        if (rb == null)
+        {
+            Debug.LogError($"{name}: NO RIGIDBODY");
+            return;
+        }
+
+        Debug.Log(
+            $"{name} RB STATE:\n" +
+            $"isKinematic={rb.isKinematic}\n" +
+            $"useGravity={rb.useGravity}\n" +
+            $"constraints={rb.constraints}\n" +
+            $"mass={rb.mass}"
+        );
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log($"[COLLISION ENTER] {name} hit {collision.gameObject.name}");
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        Debug.Log($"[COLLISION STAY] {name} touching {collision.gameObject.name}");
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        Debug.Log($"[COLLISION EXIT] {name} left {collision.gameObject.name}");
+    }
+
+
 }

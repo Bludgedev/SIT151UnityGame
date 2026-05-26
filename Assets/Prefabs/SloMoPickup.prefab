@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1220001591103550028}
   - component: {fileID: 5722770044415699683}
   - component: {fileID: 4379250816925717684}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: TouchSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69,7 +69,7 @@ GameObject:
   - component: {fileID: 3414958801677209741}
   - component: {fileID: 5088148077017723425}
   - component: {fileID: 7709754189949416590}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: SensorSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -136,7 +136,7 @@ GameObject:
   - component: {fileID: 8159266199001603379}
   - component: {fileID: -6485451627129536857}
   - component: {fileID: 172324083502512449}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: SloMoPickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,7 @@ Transform:
   m_GameObject: {fileID: 3391467149483045489}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1220001591103550028}
@@ -245,9 +245,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25e98edd05ac4ac4a8583309ef24c7ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attractionSpeed: 5
+  attractionSpeed: 3
   rotatePickup: 1
-  rotationSpeed: 90
+  rotationSpeed: 0
   duration: 5
   worldSlow: 0.4
   bulletSlow: 0.6

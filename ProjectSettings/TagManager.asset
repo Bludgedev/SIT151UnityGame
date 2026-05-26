@@ -10,14 +10,14 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Projectiles
+  - Player Projectiles
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player
+  - Enemy
+  - World
+  - Pickup
+  - Enemy Projectiles
   - 
   - 
   - 

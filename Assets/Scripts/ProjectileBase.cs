@@ -4,20 +4,22 @@ using UnityEngine;
 
 public abstract class ProjectileBase : MonoBehaviour
 {
-    protected Vector3 velocity;
+    [SerializeField] protected float damage = 1f;
+    [SerializeField] protected float speed = 10f;
+
+    public float Damage => damage;
+
+    protected abstract void Tick(float dt);
 
     protected virtual void Update()
     {
-        Tick(GetDeltaTime());
+        Tick(Time.deltaTime);
     }
 
-    protected virtual float GetDeltaTime()
+    protected virtual void OnTriggerEnter(Collider other)
     {
-        if (TimeDilationSystem.Instance == null)
-            return Time.deltaTime;
-
-        return Time.deltaTime * TimeDilationSystem.Instance.BulletTimeScale;
+        OnHit(other);
     }
 
-    protected abstract void Tick(float dt);
+    protected abstract void OnHit(Collider other);
 }

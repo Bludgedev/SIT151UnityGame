@@ -6,7 +6,7 @@ using UnityEngine;
 public class Missile : ProjectileBase, IDamageDealer
 {
     [Header("Movement")]
-    [SerializeField] private float speed = 8f;
+    //[SerializeField] private float speed = 8f;
    // [SerializeField] private float turnSpeed = 200f;
     [SerializeField] private float trackingStrength = 5f;
     [SerializeField] private float maxTurnAngle = 30f;
@@ -15,7 +15,7 @@ public class Missile : ProjectileBase, IDamageDealer
     private float lifeTimer;
 
     [Header("Damage")]
-    [SerializeField] private float damage = 5f;
+    //[SerializeField] private float damage = 5f;
     [SerializeField] private float explosionRadius = 2.5f;
     [SerializeField] private RuntimeAnimatorController explosionController;
     [SerializeField] private float explosionLifetime = 1f;
@@ -23,7 +23,7 @@ public class Missile : ProjectileBase, IDamageDealer
     private Transform target;
     private Vector3 moveDir;
 
-    public float Damage => damage;
+    //public float Damage => damage;
 
     private void Start()
     {
@@ -68,7 +68,13 @@ public class Missile : ProjectileBase, IDamageDealer
         }
     }
 
+    protected override void OnHit(Collider other)
+    {
+        // Missile does NOT directly deal damage anymore
+        // It just triggers explosion logic
 
+        Explode();
+    }
 
     private void AcquireTarget()
     {
@@ -94,50 +100,57 @@ public class Missile : ProjectileBase, IDamageDealer
         target = best;
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.GetComponent<EnemyBase>() != null)
-        {
-            Explode();
-        }
-    }
+
 
     private void Explode()
     {
-        //  Create FX object at runtime
+        SpawnExplosionFX();
+        DealDamage();
+
+        Destroy(gameObject);
+    }
+
+    private void DealDamage()
+    {
+        CombatResolver.DealAreaDamage(
+            gameObject,
+            transform.position,
+            explosionRadius,
+            Damage
+        );
+    }
+
+    private void SpawnExplosionFX()
+    {
         GameObject fx = new GameObject("ExplosionFX");
 
         fx.transform.position = transform.position;
         fx.transform.rotation = Quaternion.identity;
         fx.transform.localScale = transform.localScale;
 
-        // Add components
         SpriteRenderer sr = fx.AddComponent<SpriteRenderer>();
         Animator anim = fx.AddComponent<Animator>();
 
-        // Assign animation controller
         anim.runtimeAnimatorController = explosionController;
-
-        
         sr.sortingOrder = 10;
 
-        //  Damage logic
-        Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
-
-        foreach (var hit in hits)
-        {
-            EnemyBase enemy = hit.GetComponent<EnemyBase>();
-
-            if (enemy != null)
-            {
-                enemy.TakeDamage(damage);
-            }
-        }
-
-        // Destroy FX after animation plays
         Destroy(fx, explosionLifetime);
-
-        // Destroy missile immediately
-        Destroy(gameObject);
     }
+
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log($"[COLLISION ENTER] {name} hit {collision.gameObject.name}");
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        Debug.Log($"[COLLISION STAY] {name} touching {collision.gameObject.name}");
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        Debug.Log($"[COLLISION EXIT] {name} left {collision.gameObject.name}");
+    }
+
 }

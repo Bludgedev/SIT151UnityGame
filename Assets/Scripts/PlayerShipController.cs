@@ -37,6 +37,25 @@ public class PlayerShipController : MonoBehaviour
         {
             Debug.LogError("PlayerHealth missing on PlayerShip at Start!");
         }
+
+
+        var rb = GetComponent<Rigidbody>();
+
+        if (rb == null)
+        {
+            Debug.LogError($"{name}: NO RIGIDBODY");
+            return;
+        }
+
+        Debug.Log(
+            $"{name} RB STATE:\n" +
+            $"isKinematic={rb.isKinematic}\n" +
+            $"useGravity={rb.useGravity}\n" +
+            $"constraints={rb.constraints}\n" +
+            $"mass={rb.mass}"
+        );
+
+
     }
     private void Awake()
     {
@@ -51,6 +70,16 @@ public class PlayerShipController : MonoBehaviour
             return;
         }
 
+        var col = GetComponent<Collider>();
+
+        if (col == null)
+        {
+            Debug.LogError($"{name}: NO COLLIDER");
+        }
+        else
+        {
+            Debug.Log($"{name} Collider: isTrigger={col.isTrigger}");
+        }
 
         playerHealth = GetComponent<PlayerHealth>();
 
@@ -60,6 +89,7 @@ public class PlayerShipController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+         
         
         if (gameMode != null && gameMode.CurrentState == GameState.GameOver)
             return;
@@ -92,9 +122,9 @@ public class PlayerShipController : MonoBehaviour
 
         float speed = 5f; // tweak this instead of hardcoding 0.01
         Vector3 direction = new Vector3(input.x, input.y, 0f);
-        transform.position += direction * speed * Time.deltaTime;
+        GetComponent<Rigidbody>().MovePosition(transform.position + direction * speed * Time.deltaTime);
 
-      
+
         // --- Clamp to Camera ---
         Vector3 pos = transform.position;
 
@@ -119,7 +149,7 @@ public class PlayerShipController : MonoBehaviour
 
     }
 
-        private void OnCollisionEnter(Collision collisionInfo)
+    private void OnCollisionEnter(Collision collisionInfo)
     {
         if (!collisionInfo.gameObject.CompareTag("EnemyShip"))
             return;
@@ -128,14 +158,12 @@ public class PlayerShipController : MonoBehaviour
 
         if (enemy != null)
         {
-            // BOTH SIDES TAKE DAMAGE
-            playerHealth.TakeDamage(ramDamage);
-            enemy.TakeDamage(ramDamage);
+            // BOTH SIDES DAMAGE VIA COMBAT RESOLVER
+            CombatResolver.DealDirectDamage(gameObject, enemy.gameObject, ramDamage);
+            CombatResolver.DealDirectDamage(enemy.gameObject, gameObject, ramDamage);
         }
-
+        Debug.Log($"COLLISION: {gameObject.name} hit {collisionInfo.gameObject.name}");
         Debug.Log($"Collision with {collisionInfo.gameObject.name} - Ram damage applied");
-
-       
     }
 
     private void OnEnable()
@@ -179,5 +207,15 @@ public class PlayerShipController : MonoBehaviour
         Destroy(gameObject);
     }
 
+
+    private void OnCollisionStay(Collision collision)
+    {
+        Debug.Log($"[COLLISION STAY] {name} touching {collision.gameObject.name}");
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        Debug.Log($"[COLLISION EXIT] {name} left {collision.gameObject.name}");
+    }
 
 }
