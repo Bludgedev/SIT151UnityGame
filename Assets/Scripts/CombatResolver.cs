@@ -10,10 +10,12 @@ public static class CombatResolver
     // SINGLE TARGET DAMAGE
     public static void DealDirectDamage(GameObject attacker, GameObject target, float damage)
     {
-        if (target == null || attacker == null) return;
+        if (target == attacker) return;
 
         var dmg = target.GetComponentInParent<IDamageable>();
         if (dmg == null) return;
+
+        Debug.Log($"[RESOLVER] DIRECT DAMAGE to {target.name}");
 
         dmg.TakeDamage(damage);
     }
@@ -49,9 +51,7 @@ public static class CombatResolver
             // IMPORTANT: use root first, not just parent chain
             var dmg = hit.GetComponentInParent<IDamageable>();
 
-            Debug.Log($"[RESOLVER] Root object: {hit.transform.root.name}");
-            Debug.Log($"[RESOLVER] IDamageable on {hit.name}? {(dmg != null)}");
-
+            
             if (dmg != null)
             {
                 Debug.Log($"[RESOLVER] APPLYING DAMAGE to {hit.name}");

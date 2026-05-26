@@ -11,11 +11,11 @@ GameObject:
   - component: {fileID: 8290560931310333227}
   - component: {fileID: 8290560931310333226}
   - component: {fileID: 8290560931310333229}
-  - component: {fileID: 7824611510804826133}
   - component: {fileID: 7627768693374552873}
   - component: {fileID: -4236282294539611384}
+  - component: {fileID: 3299413736556051822}
   m_Layer: 7
-  m_Name: enemy-big001
+  m_Name: EnemyBrute
   m_TagString: EnemyShip
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 8290560931310333228}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3.5, y: 3.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -109,23 +109,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &7824611510804826133
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8290560931310333228}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a49bba8149af4f48a1986f33eb9fc5d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 1
-  maxHealth: 6
-  explosion: {fileID: 9100000, guid: f0bcc492b85a4654fa7f7c845fa6a9bb, type: 2}
-  deathDelay: 2
-  destroyWhenOffscreen: 1
 --- !u!136 &7627768693374552873
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -156,3 +139,26 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 3
+--- !u!114 &3299413736556051822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8290560931310333228}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19d60860efed5854aa591f99f52163c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 1
+  maxHealth: 1
+  explosion: {fileID: 9100000, guid: f0bcc492b85a4654fa7f7c845fa6a9bb, type: 2}
+  deathDelay: 2
+  destroyWhenOffscreen: 1
+  projectilePrefab: {fileID: 1219690634970515614, guid: 74a604a1cc8ef2f4185f325bc7c88ac4, type: 3}
+  fireCooldown: 1.5
+  projectileSpeed: 4
+  baseInaccuracy: 25
+  swarmPenalty: 10
+  aimAssist: 15

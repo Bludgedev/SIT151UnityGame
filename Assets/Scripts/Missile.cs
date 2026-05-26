@@ -39,10 +39,15 @@ public class Missile : ProjectileBase, IDamageDealer
     {
         col = GetComponent<Collider>();
         rb = GetComponent<Rigidbody>();
+        rb.useGravity = false;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
     protected override void Tick(float dt)
     {
+        if (rb == null || hasExploded) return;
+
         if (target == null)
             AcquireTarget();
 
@@ -61,13 +66,13 @@ public class Missile : ProjectileBase, IDamageDealer
             );
         }
 
-        // Move forward
-        Vector3 movement = moveDir.normalized * speed * dt;
-        movement.z = 0f;
+        // Rigidbody velocity movement
+        Vector3 velocity = moveDir.normalized * speed;
+        velocity.z = 0f;
 
-        rb.MovePosition(rb.position + movement);
+        rb.velocity = velocity;
 
-        // LOCK rotation to Z only
+        // Rotation (unchanged but stable)
         float angle = Mathf.Atan2(moveDir.y, moveDir.x) * Mathf.Rad2Deg - 90f;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
@@ -79,7 +84,7 @@ public class Missile : ProjectileBase, IDamageDealer
         }
     }
 
-   
+
     protected override void OnHit(Collider other)
     {
         // intentionally empty

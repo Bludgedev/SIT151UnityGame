@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerShipController : MonoBehaviour, IDamageable
 {
+    public static PlayerShipController Instance { get; private set; }
     public GameObject bulletTemplate;
     public ShipGameMode gameMode;
     public AudioClip shootClip;
@@ -42,6 +43,14 @@ public class PlayerShipController : MonoBehaviour, IDamageable
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
         rb = GetComponent<Rigidbody>();
 
         if (weaponController == null)
