@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -4236282294539611384}
   m_Layer: 7
   m_Name: enemy-big001
-  m_TagString: Untagged
+  m_TagString: EnemyShip
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

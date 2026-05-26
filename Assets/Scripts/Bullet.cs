@@ -5,34 +5,46 @@ using UnityEngine;
 public class Bullet : ProjectileBase
 {
     private Vector3 direction = Vector3.up;
-
-    protected float dt;
-
-    protected virtual float GetDeltaTime()
-    {
-        return TimeDilationSystem.Instance == null
-            ? Time.deltaTime
-            : Time.deltaTime * TimeDilationSystem.Instance.WorldTimeScale;
-    }
+    private Rigidbody rb;
 
     public void SetDirection(Vector3 dir)
     {
         direction = dir.normalized;
     }
 
+    private void Start()
+    {
+        var col = GetComponent<Collider>();
+        Debug.Log($"[BULLET START] isTrigger = {col.isTrigger}");
+        Debug.Log($"[BULLET START] Rigidbody = {GetComponent<Rigidbody>() != null}");
+
+    }
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+       
+    }
+
+    private void FixedUpdate()
+    {
+        Tick(Time.fixedDeltaTime);
+    }
+
     protected override void Tick(float dt)
     {
-        dt = GetDeltaTime();
-        transform.position += direction * speed * dt;
-
-        if (transform.position.y > 8f || transform.position.y < -8f)
-            Destroy(gameObject);
+        // physics-safe kinematic motion
+        rb.MovePosition(rb.position + direction * speed * dt);
     }
 
     protected override void OnTriggerEnter(Collider other)
     {
+        Debug.Log("[BULLET] Calling CombatResolver");
         Debug.Log($"TRIGGER HIT: {name} -> {other.name}");
+        Debug.Log($"BULLET TRIGGER HIT: {other.name} | Layer: {LayerMask.LayerToName(other.gameObject.layer)}");
+
         CombatResolver.DealDirectDamage(gameObject, other.gameObject, Damage);
+
         Destroy(gameObject);
     }
 
@@ -42,5 +54,8 @@ public class Bullet : ProjectileBase
         Destroy(gameObject);
     }
 
-    
+    void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log($"COLLISION: {collision.gameObject.name}");
+    }
 }

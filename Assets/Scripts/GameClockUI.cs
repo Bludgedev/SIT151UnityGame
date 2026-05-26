@@ -17,8 +17,9 @@ public class GameClockUI : MonoBehaviour
 
         int minutes = Mathf.FloorToInt(t / 60f);
         int seconds = Mathf.FloorToInt(t % 60f);
+        int milliseconds = Mathf.FloorToInt((t * 1000f) % 1000f);
 
-        clockText.text = $"{minutes:00}:{seconds:00}";
+        clockText.text = $"{minutes:00}:{seconds:00}.{milliseconds:000}";
     }
 }
 

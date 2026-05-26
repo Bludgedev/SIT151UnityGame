@@ -248,10 +248,10 @@ MonoBehaviour:
   attractionSpeed: 3
   rotatePickup: 1
   rotationSpeed: 0
-  duration: 5
-  worldSlow: 0.4
-  bulletSlow: 0.6
-  playerSlow: 0.8
+  duration: 10
+  worldSlow: 1
+  bulletSlow: 1
+  playerSlow: 1
 --- !u!136 &-6485451627129536857
 CapsuleCollider:
   m_ObjectHideFlags: 0

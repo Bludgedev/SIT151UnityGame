@@ -6,14 +6,14 @@ using UnityEngine;
 
 public static class CombatResolver
 {
- 
+
     // SINGLE TARGET DAMAGE
     public static void DealDirectDamage(GameObject attacker, GameObject target, float damage)
     {
         if (target == null || attacker == null) return;
 
-        if (!target.TryGetComponent<IDamageable>(out var dmg))
-            return;
+        var dmg = target.GetComponentInParent<IDamageable>();
+        if (dmg == null) return;
 
         dmg.TakeDamage(damage);
     }
@@ -22,12 +22,39 @@ public static class CombatResolver
     // AREA DAMAGE
     public static void DealAreaDamage(GameObject attacker, Vector3 position, float radius, float damage)
     {
-        Collider[] hits = Physics.OverlapSphere(position, radius);
+        Debug.Log("[RESOLVER] ENTER DealAreaDamage");
 
-        foreach (var hit in hits)
+        var scene = attacker.scene.GetPhysicsScene();
+
+        Collider[] hits = new Collider[32];
+        int count = scene.OverlapSphere(
+            position,
+            radius,
+            hits,
+            ~0, // layerMask ALL
+            QueryTriggerInteraction.Collide // IMPORTANT
+        );
+
+       
+        Debug.Log($"Hits found: {count}");
+
+        for (int i = 0; i < count; i++)
         {
-            if (hit.TryGetComponent<IDamageable>(out var dmg))
+            var hit = hits[i];
+
+            if (hit == null) continue;
+
+            Debug.Log($"[RESOLVER] Checking: {hit.name}");
+
+            // IMPORTANT: use root first, not just parent chain
+            var dmg = hit.GetComponentInParent<IDamageable>();
+
+            Debug.Log($"[RESOLVER] Root object: {hit.transform.root.name}");
+            Debug.Log($"[RESOLVER] IDamageable on {hit.name}? {(dmg != null)}");
+
+            if (dmg != null)
             {
+                Debug.Log($"[RESOLVER] APPLYING DAMAGE to {hit.name}");
                 dmg.TakeDamage(damage);
             }
         }

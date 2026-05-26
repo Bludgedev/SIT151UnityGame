@@ -13,22 +13,17 @@ public abstract class ProjectileBase : MonoBehaviour
 
     protected virtual void Update()
     {
-        Tick(Time.deltaTime);
+        float dt = TimeDilationSystem.Instance == null
+            ? Time.deltaTime
+            : Time.deltaTime * TimeDilationSystem.Instance.WorldTimeScale;
+
+        Tick(dt);
     }
 
     protected virtual void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"HIT: {name} -> {other.name}");
+        Debug.Log($"[PROJECTILE BASE] HIT: {name} -> {other.name}");
 
-        var dmg = other.GetComponentInParent<IDamageable>();
-
-        Debug.Log($"HAS IDAMAGEABLE? {(dmg != null)}");
-
-        if (dmg != null)
-        {
-            dmg.TakeDamage(1f);
-            Debug.Log("DAMAGE APPLIED");
-        }
     }
 
 

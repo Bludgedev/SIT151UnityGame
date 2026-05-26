@@ -25,10 +25,20 @@ public class Missile : ProjectileBase, IDamageDealer
 
     //public float Damage => damage;
 
+    private bool hasExploded;
+    private Collider col;
+    private Rigidbody rb;
+
     private void Start()
     {
         moveDir = transform.up; // treat UP as forward (2D style)
         AcquireTarget();
+    }
+
+    private void Awake()
+    {
+        col = GetComponent<Collider>();
+        rb = GetComponent<Rigidbody>();
     }
 
     protected override void Tick(float dt)
@@ -54,7 +64,8 @@ public class Missile : ProjectileBase, IDamageDealer
         // Move forward
         Vector3 movement = moveDir.normalized * speed * dt;
         movement.z = 0f;
-        transform.position += movement;
+
+        rb.MovePosition(rb.position + movement);
 
         // LOCK rotation to Z only
         float angle = Mathf.Atan2(moveDir.y, moveDir.x) * Mathf.Rad2Deg - 90f;
@@ -68,14 +79,18 @@ public class Missile : ProjectileBase, IDamageDealer
         }
     }
 
-    protected override void OnTriggerEnter(Collider other)
-    {
-        Debug.Log($"TRIGGER HIT: {name} -> {other.name}");
-        Explode();
-    }
-
+   
     protected override void OnHit(Collider other)
     {
+        // intentionally empty
+    }
+
+
+    protected override void OnTriggerEnter(Collider other)
+    {
+        if (hasExploded) return;
+
+        Debug.Log($"TRIGGER HIT: {name}  {GetInstanceID()} -> {other.name}");
         Explode();
     }
 
@@ -107,6 +122,18 @@ public class Missile : ProjectileBase, IDamageDealer
 
     private void Explode()
     {
+        if (hasExploded) return;
+
+        hasExploded = true;
+        col.enabled = false;
+
+        var rb = GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.detectCollisions = false;
+            rb.velocity = Vector3.zero;
+        }
+
         SpawnExplosionFX();
         DealDamage();
 

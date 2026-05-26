@@ -6,5 +6,6 @@ public enum AmmoType
 {
     Missile,
     Laser,
+    Shell,
     Bomb
 }

@@ -181,7 +181,7 @@ public class MusicManager : MonoBehaviour
                 musicFadeMultiplier;
         }
 
-        Debug.Log("Secondary volume: " + secondarySource.volume);
+        //Debug.Log("Secondary volume: " + secondarySource.volume);
     }
 
     // ------------------------
@@ -233,7 +233,7 @@ public class MusicManager : MonoBehaviour
 
             case GameState.Pause:
                 {
-                    Debug.Log("PAUSE MUSIC START");
+                    
 
                     // Pause gameplay once
                     if (gameplaySource.isPlaying)

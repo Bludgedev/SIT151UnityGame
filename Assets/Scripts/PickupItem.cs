@@ -15,18 +15,18 @@ public class PickupItem : MonoBehaviour
             Debug.LogError("No PickupBase attached to: " + gameObject.name);
         }
 
-        Debug.Log("ROOT: " + transform.root.name);
+        //Debug.Log("ROOT: " + transform.root.name);
 
         var comps = transform.root.GetComponents<MonoBehaviour>();
         foreach (var c in comps)
         {
-            Debug.Log("ROOT COMPONENT: " + c.GetType().Name);
+            //Debug.Log("ROOT COMPONENT: " + c.GetType().Name);
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("TouchSphere triggered with: " + other.name);
+        //Debug.Log("TouchSphere triggered with: " + other.name);
 
         if (!other.CompareTag("Player"))
             return;
@@ -37,7 +37,7 @@ public class PickupItem : MonoBehaviour
             return;
         }
 
-        Debug.Log("Collecting " + gameObject.name);
+        //Debug.Log("Collecting " + gameObject.name);
 
         pickup.TriggerCollect(other.gameObject);
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Profiling;
 using UnityEngine;
 
-public class PlayerShipController : MonoBehaviour
+public class PlayerShipController : MonoBehaviour, IDamageable
 {
     public GameObject bulletTemplate;
     public ShipGameMode gameMode;
@@ -13,8 +13,7 @@ public class PlayerShipController : MonoBehaviour
     private PlayerHealth playerHealth;
     private Camera mainCamera;
     private Rigidbody rb;
-
-
+    
     [SerializeField] private float screenPadding = 0.5f;
 
     [SerializeField] private float ramDamage = 5f;
@@ -62,10 +61,7 @@ public class PlayerShipController : MonoBehaviour
         {
             Debug.LogError($"{name}: NO COLLIDER");
         }
-        else
-        {
-            Debug.Log($"{name} Collider: isTrigger={col.isTrigger}");
-        }
+        
 
         playerHealth = GetComponent<PlayerHealth>();
 
@@ -112,7 +108,7 @@ public class PlayerShipController : MonoBehaviour
         if (direction.sqrMagnitude > 1f)
             direction.Normalize();
 
-        float speed = 8f;
+        float speed = 5f;
 
         rb.MovePosition(rb.position + direction * speed * Time.deltaTime);
 
@@ -196,6 +192,11 @@ public class PlayerShipController : MonoBehaviour
         Destroy(fx, 1f);
 
         Destroy(gameObject);
+    }
+
+    public virtual void TakeDamage(float damage)
+    {
+        Debug.Log(" TakeDamage() called");
     }
 
 

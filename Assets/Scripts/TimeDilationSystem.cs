@@ -41,6 +41,7 @@ public class TimeDilationSystem : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        Debug.Log("TimeDilationSystem INITIALISED");
     }
 
     private void Update()
@@ -49,7 +50,7 @@ public class TimeDilationSystem : MonoBehaviour
 
         HandleState(dt);
 
-        gameTime += dt * worldTimeScale;
+        gameTime += Time.deltaTime;
     }
 
     private void HandleState(float dt)

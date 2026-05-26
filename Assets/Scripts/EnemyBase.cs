@@ -24,12 +24,11 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
 
     protected float dt;
 
-    private float debugTimer;
+    
 
     protected virtual void Awake()
     {
         currentHealth = maxHealth;
-
         
     }
 

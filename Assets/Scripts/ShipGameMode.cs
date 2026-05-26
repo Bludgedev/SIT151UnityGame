@@ -225,7 +225,7 @@ public class ShipGameMode : MonoBehaviour
 
         CurrentState = newState;
 
-        Debug.Log("State changed to: " + newState);
+        //Debug.Log("State changed to: " + newState);
 
         MusicManager.Instance.ApplyState(newState);
     }
