@@ -7,12 +7,22 @@ public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance;
 
-    public int Score { get; private set; }
+    // Total Score - persists across levels
+    public int TotalScore { get; private set; }
+    public int TotalKills { get; private set; }
+    public int TotalPickups { get; private set; }
+
+    public int Score;
+
+    // Level Score - resets each level
+    public int LevelScore { get; private set; }
+    public int LevelKills { get; private set; }
+    public int LevelPickups { get; private set; }
+
+    private float levelStartTime;
+    public float LevelTime => Time.time - levelStartTime;
 
     public event Action<int> OnScoreChanged;
-
-    private float startTime;
-    public float SurvivalTime => Time.time - startTime;
 
     private void Awake()
     {
@@ -25,21 +35,70 @@ public class ScoreManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Start()
+    // -------------------------
+    // LEVEL FLOW
+    // -------------------------
+
+    public void StartLevel()
     {
-        startTime = Time.time;
+        LevelScore = 0;
+        LevelKills = 0;
+        LevelPickups = 0;
+        levelStartTime = Time.time;
+
+        OnScoreChanged?.Invoke(LevelScore);
     }
+
+    public void EndLevel()
+    {
+        // Roll level into total
+        TotalScore += LevelScore;
+        TotalKills += LevelKills;
+        TotalPickups += LevelPickups;
+    }
+
+    // -------------------------
+    // GAME EVENTS
+    // -------------------------
 
     public void AddScore(int amount)
     {
-        Score += amount;
-        OnScoreChanged?.Invoke(Score);
+        LevelScore += amount;
+        OnScoreChanged?.Invoke(LevelScore);
     }
 
-    public void ResetScore()
+    public void RegisterKill()
     {
-        Score = 0;
-        startTime = Time.time;
-        OnScoreChanged?.Invoke(Score);
+        LevelKills++;
+    }
+
+    public void RegisterPickup()
+    {
+        LevelPickups++;
+    }
+
+    // -------------------------
+    // RESULTS
+    // -------------------------
+
+    public LevelResults GetLevelResults()
+    {
+        return new LevelResults
+        {
+            score = LevelScore,
+            kills = LevelKills,
+            pickups = LevelPickups,
+            survivalTime = LevelTime
+        };
+    }
+
+    public TotalResults GetTotalResults()
+    {
+        return new TotalResults
+        {
+            totalScore = TotalScore,
+            totalKills = TotalKills,
+            totalPickups = TotalPickups
+        };
     }
 }

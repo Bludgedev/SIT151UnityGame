@@ -21,6 +21,7 @@ public class MusicManager : MonoBehaviour
     public float gameplayMultiplier = 0.8f;
     public float pauseMultiplier = 1f;
     public float gameOverMultiplier = 1.2f;
+    public float gameVictoryMultiplier = 1.2f;
     public float mainmenuMultiplier = 1.0f;
 
     private bool gameplayWasPaused;
@@ -30,6 +31,7 @@ public class MusicManager : MonoBehaviour
     public AudioClip gameplayMusic;
     public AudioClip pauseMusic;
     public AudioClip gameOverMusic;
+    public AudioClip gameVictoryMusic;
 
     private float musicVolume = 1f;
     private float musicFadeMultiplier = 1f;
@@ -267,6 +269,11 @@ public class MusicManager : MonoBehaviour
             case GameState.GameOver:
                 StopAllMusic();
                 PlaySecondaryMusic(gameOverMusic, false);
+                break;
+
+            case GameState.GameVictory:
+                StopAllMusic();
+                PlaySecondaryMusic(gameVictoryMusic, false);
                 break;
         }
 

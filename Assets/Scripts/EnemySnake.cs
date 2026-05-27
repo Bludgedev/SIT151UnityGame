@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemySnake : EnemyBase
+public class EnemySnake : MonoBehaviour, IDamageable
 {
     [Header("Segments")]
     public Transform head;
@@ -14,10 +14,11 @@ public class EnemySnake : EnemyBase
     public float waveAmplitude = 2f;
     public float waveFrequency = 2f;
     public float segmentSpacing = 0.5f;
+    public float speed = 2f;
 
     [Header("Segment HP")]
-    public int headHP = 5;
-    public int bodyHP = 3;
+    public int headHP = 12;
+    public int bodyHP = 6;
 
     private List<Transform> allSegments = new List<Transform>();
     private List<Vector3> positionHistory = new List<Vector3>();
@@ -33,27 +34,28 @@ public class EnemySnake : EnemyBase
         positionHistory.Add(head.position);
     }
 
-    protected override void Tick(float dt)
+    private void FixedUpdate()
     {
-        throw new System.NotImplementedException();
+        Move(Time.fixedDeltaTime);
     }
 
-    protected override void Move()
+    public void Move(float dt)
     {
-        MoveHead();
+        MoveHead(dt);
         UpdateHistory();
         FollowSegments();
     }
 
-    private void MoveHead()
+    private void MoveHead(float dt)
     {
         Vector3 pos = head.position;
 
-        pos.x += moveDirection * speed * Time.deltaTime;
+        pos.x += moveDirection * speed * dt;
 
         pos.y = baseY + Mathf.Sin(Time.time * waveFrequency) * waveAmplitude;
 
-        head.position = pos;
+        Rigidbody rb = head.GetComponent<Rigidbody>();
+        rb.MovePosition(pos);
     }
 
     private void UpdateHistory()
@@ -76,7 +78,8 @@ public class EnemySnake : EnemyBase
 
             if (historyIndex < positionHistory.Count)
             {
-                allSegments[i].position = positionHistory[historyIndex];
+                Rigidbody rb = allSegments[i].GetComponent<Rigidbody>();
+                rb.MovePosition(positionHistory[historyIndex]);
             }
         }
     }
@@ -117,6 +120,11 @@ public class EnemySnake : EnemyBase
         }
     }
 
+    public void TakeDamage(float damage)
+    {
+        //  we fix this later
+    }
+
     public void DestroyFromIndex(int index)
     {
         for (int i = allSegments.Count - 1; i >= index; i--)
@@ -136,5 +144,9 @@ public class EnemySnake : EnemyBase
         }
     }
 
-   
+    public void Die()
+    {
+        
+    }
+
 }

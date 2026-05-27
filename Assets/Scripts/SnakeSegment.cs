@@ -6,7 +6,7 @@ using UnityEngine;
 public class SnakeSegment : MonoBehaviour
 {
     [Header("Health")]
-    public int maxHP = 3;
+    public int maxHP = 6;
 
     private int currentHP;
 

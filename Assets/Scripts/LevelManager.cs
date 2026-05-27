@@ -4,19 +4,17 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
-    [Header("Level Settings")]
+    [Header("Level Timing")]
     public float levelDuration = 300f;
+
+    private float timer;
+    private bool running;
 
     [Header("References")]
     public WaveSpawner waveSpawner;
     public GameObject bossPrefab;
-    public Transform bossSpawnPoint;
 
-    private float timer;
-    private bool levelRunning;
-    private bool bossActive;
-
-    private GameObject currentBoss;
+    
 
     void Start()
     {
@@ -26,95 +24,33 @@ public class LevelManager : MonoBehaviour
     public void StartLevel()
     {
         timer = levelDuration;
-        levelRunning = true;
-        bossActive = false;
+        running = true;
 
-        waveSpawner.Begin();
+        
     }
 
     void Update()
     {
-        if (!levelRunning)
-            return;
+        if (!running) return;
 
-        // 1. Player fail check (hook this properly later via PlayerHealth event)
-        if (PlayerIsDead())
-        {
-            EndLevel(false);
-            return;
-        }
+        timer += Time.deltaTime;
 
-        // 2. Timer phase (waves)
-        if (!bossActive)
-        {
-            timer -= Time.deltaTime;
+        float t = timer / levelDuration;
 
-            if (timer <= 0f)
-            {
-                StartBossPhase();
-            }
-        }
-
-        // 3. Boss win condition
-        if (bossActive && currentBoss == null)
-        {
-            EndLevel(true);
-        }
+       
     }
 
-    void StartBossPhase()
+    
+
+    void EnterBossPhase()
     {
-        bossActive = true;
-
-        waveSpawner.StopSpawning();
-
-        Vector3 spawnPos = bossSpawnPoint != null
-            ? bossSpawnPoint.position
-            : new Vector3(0f, 6f, 0f);
-
-        currentBoss = Instantiate(bossPrefab, spawnPos, Quaternion.identity);
+        
     }
 
-    public void EndLevel(bool success)
+    public void BossDefeated()
     {
-        if (!levelRunning)
-            return;
-
-        levelRunning = false;
-
-        waveSpawner.StopSpawning();
-
-        Debug.Log(success
-            ? "[LEVEL COMPLETE] Player Wins"
-            : "[LEVEL FAILED] Player Died");
-
-        // TODO:
-        // stats.FinishRun(success);
-        // UIEndScreen.Show(...)
-    }
-
-    bool PlayerIsDead()
-    {
-        // Replace this with your real health reference later
-        var player = GameObject.FindGameObjectWithTag("Player");
-        if (player == null) return true;
-
-        var hp = player.GetComponent<PlayerHealth>();
-        if (hp == null) return false;
-
-        return hp.IsDead; // assume you expose this bool
-    }
-
-    public void OnBossDestroyed()
-    {
-        if (bossActive)
-        {
-            currentBoss = null;
-        }
-    }
-
-    public float GetProgressPercent()
-    {
-        return Mathf.Clamp01(1f - (timer / levelDuration));
+        running = false;
+        Debug.Log("[LEVEL COMPLETE]");
+        // trigger victory
     }
 }

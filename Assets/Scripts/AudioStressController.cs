@@ -119,9 +119,12 @@ public class AudioStressController : MonoBehaviour
         }
     }
 
-    //====================================================
-    // LOW PASS FILTER
-    //====================================================
+    public void StopHeartbeatForCinematic()
+    {
+        StopHeartbeat();
+    }
+
+    // Low pass filter - DO NOT TOUCH
 
     private void UpdateLowPass(float percent)
     {

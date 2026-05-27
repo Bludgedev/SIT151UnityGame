@@ -10,11 +10,13 @@ public class ShipGameMode : MonoBehaviour
     public PlayerHealth playerHealth;
 
     [Header("Level Setup")]
+    [SerializeField] private LevelManager levelManager;
+    [SerializeField] private WaveSpawner waveSpawner;
+    [SerializeField] private ScoreManager scoreManager;
+
     public string levelName = "Level1";
     
-    // This is a flag that indicates if the game is over
-   
-
+    
     //  Handles for the Health UI
     public TextMeshProUGUI healthDisplay;
     public Slider healthBar;
@@ -28,6 +30,11 @@ public class ShipGameMode : MonoBehaviour
     public GameObject gameOverMenu;
     public GameObject gameOverDisplay;
     public CanvasGroup gameOverCanvasGroup;
+
+    [Header("Game Victory UI")]
+    public GameObject gameVictoryMenu;
+    public GameObject gameVictoryDisplay;
+    public CanvasGroup gameVictoryCanvasGroup;
 
     [Header("Fade Settings")]
     public float uiFadeDuration = 1f;
@@ -92,11 +99,43 @@ public class ShipGameMode : MonoBehaviour
         SetState(GameState.Gameplay);
     }
 
-  
-   // public void TriggerPause()
-   // {
-   //     
-   // }
+
+    // public void TriggerPause()
+    // {
+    //     
+    // }
+
+    public void StartLevel()
+    {
+        Debug.Log("[ShipGameMode] StartLevel called");
+
+        CurrentState = GameState.Gameplay;
+
+        // Let existing systems run as they already do
+    }
+
+    public void EndLevelVictory()
+    {
+        if (CurrentState == GameState.GameVictory) return;
+
+        Debug.Log("[ShipGameMode] Victory triggered");
+
+        CurrentState = GameState.GameVictory;
+
+        // TEMP: don’t break anything yet
+        // Just log and prove flow works
+    }
+
+    public void EndLevelGameOver()
+    {
+        if (CurrentState == GameState.GameOver) return;
+
+        Debug.Log("[ShipGameMode] Game Over triggered");
+
+        CurrentState = GameState.GameOver;
+
+        // Keep your existing GameOver coroutine here
+    }
 
     public void TriggerGameOver()
     {
@@ -108,6 +147,18 @@ public class ShipGameMode : MonoBehaviour
         gameOverDisplay.gameObject.SetActive(true);
 
         StartCoroutine(GameOverSequence());
+    }
+
+    public void TriggerGameVictory()
+    {
+
+        if (CurrentState == GameState.GameVictory) return;  // hard guard
+
+        SetState(GameState.GameVictory);
+
+        gameVictoryDisplay.gameObject.SetActive(true);
+
+        StartCoroutine(GameVictorySequence());
     }
 
     public void PauseGame()
@@ -214,6 +265,38 @@ public class ShipGameMode : MonoBehaviour
         }
     }
 
+    IEnumerator GameVictorySequence()
+    {
+
+        // 1. Fade screen to black (gameplay layer transition)
+        yield return StartCoroutine(FadeToBlack());
+
+        // 3. Small pause for impact / readability
+        yield return new WaitForSecondsRealtime(0.25f);
+
+        // 4. Enable Game Over UI panel and reset its state BEFORE fading in
+        gameVictoryCanvasGroup.gameObject.SetActive(true);
+        gameVictoryCanvasGroup.alpha = 0f;
+        gameVictoryCanvasGroup.interactable = false;
+        gameVictoryCanvasGroup.blocksRaycasts = false;
+
+
+
+        // 5. Fade in Game Over UI
+        yield return StartCoroutine(FadeInUI(gameVictoryCanvasGroup));
+
+        // 6. Wait for Game Over music to finish (optional cinematic pacing)
+        yield return new WaitUntil(() =>
+            !MusicManager.Instance.IsSecondaryMusicPlaying());
+
+        AudioStressController stress = FindFirstObjectByType<AudioStressController>();
+
+        if (stress != null)
+        {
+            stress.ResetHeartbeat();
+        }
+    }
+
 
     public GameState CurrentState { get; private set; } = (GameState)(-1);
 
@@ -250,6 +333,10 @@ public class ShipGameMode : MonoBehaviour
     {
         StopAllCoroutines();
     }
+
+    //  Level Transitioning
+    //==========================
+    
 
 
 }
