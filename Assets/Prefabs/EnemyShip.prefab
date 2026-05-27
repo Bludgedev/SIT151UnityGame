@@ -122,11 +122,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19d60860efed5854aa591f99f52163c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1
   maxHealth: 1
-  explosion: {fileID: 9100000, guid: f0bcc492b85a4654fa7f7c845fa6a9bb, type: 2}
-  deathDelay: 2
-  destroyWhenOffscreen: 1
+  explosionController: {fileID: 9100000, guid: f0bcc492b85a4654fa7f7c845fa6a9bb, type: 2}
+  bulletPrefab: {fileID: 1219690634970515614, guid: 74a604a1cc8ef2f4185f325bc7c88ac4, type: 3}
+  bulletSpeed: 6
+  damage: 3
+  fireRateMin: 0.5
+  fireRateMax: 1.5
+  maxSpreadAngle: 25
 --- !u!136 &-3788421825842803169
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -170,4 +173,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 3
+  explosionController: {fileID: 9100000, guid: f0bcc492b85a4654fa7f7c845fa6a9bb, type: 2}
   verbose: 1

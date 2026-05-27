@@ -7,6 +7,7 @@ using UnityEngine;
 public static class CombatResolver
 {
 
+
     // SINGLE TARGET DAMAGE
     public static void DealDirectDamage(GameObject attacker, GameObject target, float damage)
     {
@@ -59,4 +60,45 @@ public static class CombatResolver
             }
         }
     }
+
+    //  RAMMING DAMAGE
+    private static readonly HashSet<int> recentRamPairs = new();
+
+    public static void ProcessRam(GameObject a, GameObject b, Collision collision)
+    {
+        if (a == null || b == null) return;
+        if (a == b) return;
+
+        // stable pair key (order-independent)
+        int idA = a.GetInstanceID();
+        int idB = b.GetInstanceID();
+        int pairKey = idA < idB
+            ? idA * 73856093 ^ idB * 19349663
+            : idB * 73856093 ^ idA * 19349663;
+
+        if (recentRamPairs.Contains(pairKey))
+            return;
+
+        recentRamPairs.Add(pairKey);
+
+        const float ramDamage = 5f;
+
+        var dmgA = a.GetComponentInParent<IDamageable>();
+        var dmgB = b.GetComponentInParent<IDamageable>();
+
+        dmgA?.TakeDamage(ramDamage);
+        dmgB?.TakeDamage(ramDamage);
+
+        Debug.Log($"[RAM] {a.name} <-> {b.name} | dmg={ramDamage}");
+
+        // clear later
+        CoroutineRunner.Instance.StartCoroutine(RemovePairAfterDelay(pairKey, 0.2f));
+    }
+
+    private static IEnumerator RemovePairAfterDelay(int key, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        recentRamPairs.Remove(key);
+    }
+
 }

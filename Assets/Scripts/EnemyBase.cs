@@ -23,28 +23,30 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     protected bool isDying = false;
 
     protected float dt;
+    private Rigidbody rb;
 
-    
 
     protected virtual void Awake()
     {
         currentHealth = maxHealth;
-        
+        rb = GetComponent<Rigidbody>();
     }
 
     protected virtual void Update()
     {
-        dt = GetDeltaTime();
+        CheckOffscreenDestroy();   
+    }
+
+    protected virtual void FixedUpdate()
+    {
+        float dt = GetDeltaTime();
         Tick(dt);
         Move();
-        CheckOffscreenDestroy();
-
-        
     }
 
     protected virtual void Move()
     {
-        GetComponent<Rigidbody>().MovePosition(transform.position + Vector3.down * speed * Time.deltaTime);
+        rb.MovePosition(rb.position + Vector3.down * speed * dt);
     }
 
     //====================================================
@@ -52,10 +54,11 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     //====================================================
     protected virtual float GetDeltaTime()
     {
-        if (TimeDilationSystem.Instance == null)
-            return Time.deltaTime;
+        float scale = TimeDilationSystem.Instance != null
+            ? TimeDilationSystem.Instance.WorldTimeScale
+            : 1f;
 
-        return Time.deltaTime * TimeDilationSystem.Instance.WorldTimeScale;
+        return Time.fixedDeltaTime * scale;
     }
 
     protected abstract void Tick(float dt);
@@ -65,18 +68,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     //====================================================
     // NOTE:
     // All damage is handled externally via CombatResolver.
-
-
-    private void OnTriggerEnter(Collider other)
-    {
-        Debug.Log("ENEMY TRIGGERED BY: " + other.name);
-        if (isDying) return;
-
-        if (other.TryGetComponent<IDamageDealer>(out var dealer))
-        {
-            CombatResolver.DealDirectDamage(other.gameObject, gameObject, dealer.Damage);
-        }
-    }
 
     public virtual void TakeDamage(float damage)
     {

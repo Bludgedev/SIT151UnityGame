@@ -19,7 +19,9 @@ public class PlayerHealth : MonoBehaviour
     private void Awake()
     {
         CurrentHealth = maxHealth;
-        
+    
+        Debug.Log($"[PLAYER HP] INIT {CurrentHealth}");
+
     }
 
 
@@ -31,7 +33,7 @@ public class PlayerHealth : MonoBehaviour
     {
         if (CurrentHealth <= 0f)
             return;
-
+        Debug.Log($"[PLAYER HP] DAMAGE {damage} -> {CurrentHealth}");
         CurrentHealth -= damage;
         CurrentHealth = Mathf.Clamp(CurrentHealth, 0f, maxHealth);
 
@@ -69,15 +71,5 @@ public class PlayerHealth : MonoBehaviour
         OnDeath?.Invoke();
     }
 
-    //=============================
-    //   collision detection effects
-    //=============================
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.TryGetComponent<IDamageDealer>(out var damageDealer))
-        {
-            TakeDamage(damageDealer.Damage);
-        }
-    }
-
+    
 }

@@ -23,7 +23,7 @@ public class Bullet : ProjectileBase
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-       
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
     }
 
     private void FixedUpdate()
@@ -37,13 +37,16 @@ public class Bullet : ProjectileBase
         rb.MovePosition(rb.position + direction * speed * dt);
     }
 
-    protected override void OnTriggerEnter(Collider other)
-    {
-        Debug.Log("[BULLET] Calling CombatResolver");
-        Debug.Log($"TRIGGER HIT: {name} -> {other.name}");
-        Debug.Log($"BULLET TRIGGER HIT: {other.name} | Layer: {LayerMask.LayerToName(other.gameObject.layer)}");
+    private bool hasHit = false;
 
-        CombatResolver.DealDirectDamage(gameObject, other.gameObject, Damage);
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (hasHit) return;
+        hasHit = true;
+
+        Debug.Log($"[BULLET COLLISION] {collision.gameObject.name}");
+
+        CombatResolver.DealDirectDamage(gameObject, collision.gameObject, Damage);
 
         Destroy(gameObject);
     }
@@ -54,8 +57,4 @@ public class Bullet : ProjectileBase
         Destroy(gameObject);
     }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        Debug.Log($"COLLISION: {collision.gameObject.name}");
-    }
 }

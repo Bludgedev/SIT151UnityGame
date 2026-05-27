@@ -2,7 +2,7 @@
 - Project name: SIT151UnityGame
 - Unity version: Unity 2021.3.45f2
 - Active game object:
-  - Name: HUDPanel
-  - Tag: Untagged
-  - Layer: UI
+  - Name: PlayerShip
+  - Tag: Player
+  - Layer: Player
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

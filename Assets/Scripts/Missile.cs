@@ -59,11 +59,16 @@ public class Missile : ProjectileBase, IDamageDealer
             Vector3 desiredDir = toTarget.normalized;
             Vector3 currentDir = moveDir.normalized;
 
-            moveDir = Vector3.Slerp(
+            float maxRadians = maxTurnAngle * Mathf.Deg2Rad * dt;
+
+            Vector3 newDir = Vector3.RotateTowards(
                 currentDir,
                 desiredDir,
-                trackingStrength * dt
+                maxRadians,
+                0f
             );
+
+            moveDir = newDir.normalized;
         }
 
         // Rigidbody velocity movement
@@ -91,11 +96,11 @@ public class Missile : ProjectileBase, IDamageDealer
     }
 
 
-    protected override void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
         if (hasExploded) return;
 
-        Debug.Log($"TRIGGER HIT: {name}  {GetInstanceID()} -> {other.name}");
+        Debug.Log($"MISSILE COLLISION: {collision.gameObject.name}");
         Explode();
     }
 
