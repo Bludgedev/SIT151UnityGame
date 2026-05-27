@@ -1,9 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.UI;
 
 public class ShipGameMode : MonoBehaviour
@@ -200,7 +197,8 @@ public class ShipGameMode : MonoBehaviour
         gameOverCanvasGroup.interactable = false;
         gameOverCanvasGroup.blocksRaycasts = false;
 
-        
+
+
         // 5. Fade in Game Over UI
         yield return StartCoroutine(FadeInUI(gameOverCanvasGroup));
 

@@ -1911,6 +1911,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameplaySceneName: GameScene
   mainMenuSceneName: MainMenu
+  gameOverScore: {fileID: 0}
+  gameOverTime: {fileID: 0}
 --- !u!1 &354985978
 GameObject:
   m_ObjectHideFlags: 0
@@ -7996,6 +7998,7 @@ GameObject:
   - component: {fileID: 2125101043}
   - component: {fileID: 2125101045}
   - component: {fileID: 2125101044}
+  - component: {fileID: 2125101046}
   m_Layer: 5
   m_Name: ScoreBoard
   m_TagString: Untagged
@@ -8120,3 +8123,16 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2125101042}
   m_CullTransparentMesh: 1
+--- !u!114 &2125101046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2125101042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9564d8fae2adb9c4c88298511a9579f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scoreBoard: {fileID: 2125101044}

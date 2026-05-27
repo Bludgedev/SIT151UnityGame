@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Profiling;
 using UnityEngine;
 
-public class PlayerShipController : MonoBehaviour, IDamageable
+public class PlayerShipController : MonoBehaviour
 {
     public static PlayerShipController Instance { get; private set; }
 
@@ -19,7 +19,7 @@ public class PlayerShipController : MonoBehaviour, IDamageable
     [SerializeField] private RuntimeAnimatorController explosionController;
     [SerializeField] private WeaponController weaponController;
 
-    private PlayerHealth playerHealth;
+    [SerializeField] private PlayerHealth playerHealth;
     private Camera mainCamera;
     private Rigidbody rb;
 
@@ -38,7 +38,9 @@ public class PlayerShipController : MonoBehaviour, IDamageable
 
         rb = GetComponent<Rigidbody>();
         mainCamera = Camera.main;
-        playerHealth = GetComponent<PlayerHealth>();
+
+        if (playerHealth == null)
+            playerHealth = GetComponent<PlayerHealth>();
 
         if (playerHealth != null)
             playerHealth.OnDeath += HandleDeath;
@@ -108,13 +110,8 @@ public class PlayerShipController : MonoBehaviour, IDamageable
     private void OnCollisionEnter(Collision collision)
     {
         Debug.Log("PLAYER COLLISION WITH " + collision.gameObject.name);
-        
-        if (Time.time - lastRamTime < ramCooldown)
-            return;
 
-        lastRamTime = Time.time;
-
-        CombatResolver.ProcessRam(gameObject, collision.gameObject, collision);
+        CombatResolver.ProcessPlayerRam(gameObject, collision.gameObject);
     }
 
     private void HandleDeath()
@@ -145,6 +142,12 @@ public class PlayerShipController : MonoBehaviour, IDamageable
 
     public void TakeDamage(float damage)
     {
-        Debug.Log("Player took damage: " + damage);
+        if (playerHealth == null)
+        {
+            Debug.LogError("[PLAYER] PlayerHealth not assigned!");
+            return;
+        }
+
+        playerHealth.TakeDamage(damage);
     }
 }

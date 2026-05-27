@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,6 +10,8 @@ public class GameOverMenu : MonoBehaviour
     public string gameplaySceneName = "GameScene";
     public string mainMenuSceneName = "MainMenu";
 
+    [SerializeField] private TMP_Text gameOverScore;
+    [SerializeField] private TMP_Text gameOverTime;
 
     // Called by Retry button
     public void RetryGame()

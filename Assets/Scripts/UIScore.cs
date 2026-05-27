@@ -1,18 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class UIScore : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private TMP_Text scoreBoard;
+
+    private void Start()
     {
-        
+        if (scoreBoard == null)
+            scoreBoard = GameObject.Find("ScoreBoard")?.GetComponent<TMP_Text>();
+
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.OnScoreChanged += UpdateScore;
+            UpdateScore(ScoreManager.Instance.Score);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void UpdateScore(int score)
     {
-        
+        if (scoreBoard != null)
+            scoreBoard.text = $"Score: {score}";
+    }
+
+    private void OnDestroy()
+    {
+        if (ScoreManager.Instance != null)
+            ScoreManager.Instance.OnScoreChanged -= UpdateScore;
     }
 }

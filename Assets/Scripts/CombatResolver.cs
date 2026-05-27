@@ -62,9 +62,34 @@ public static class CombatResolver
     }
 
     //  RAMMING DAMAGE
-    private static readonly HashSet<int> recentRamPairs = new();
+    //private static readonly HashSet<int> recentRamPairs = new();
 
-    public static void ProcessRam(GameObject a, GameObject b, Collision collision)
+    public static void ProcessPlayerRam(GameObject player, GameObject other)
+    {
+        if (player == null || other == null)
+            return;
+
+        if (!other.CompareTag("EnemyShip"))
+            return;
+
+        var enemyDmg = other.GetComponentInParent<IDamageable>();
+        var playerHealth = player.GetComponent<PlayerHealth>();
+
+        if (enemyDmg == null || playerHealth == null)
+            return;
+
+        const float ramDamage = 5f;
+
+        enemyDmg.TakeDamage(ramDamage);
+        playerHealth.TakeDamage(ramDamage);
+
+        Debug.Log($"[RAM] Player <-> {other.name} | dmg={ramDamage}");
+    }
+
+
+
+
+    /*public static void ProcessRam(GameObject a, GameObject b, Collision collision)
     {
         if (a == null || b == null) return;
         if (a == b) return;
@@ -100,5 +125,5 @@ public static class CombatResolver
         yield return new WaitForSeconds(delay);
         recentRamPairs.Remove(key);
     }
-
+    */
 }
