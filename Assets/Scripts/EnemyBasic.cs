@@ -8,7 +8,7 @@ public class EnemyBasic : MonoBehaviour, IDamageable
     [Header("Health")]
     [SerializeField] private float maxHealth = 1f;
     [SerializeField] private RuntimeAnimatorController explosionController;
-    private float currentHealth;
+    [SerializeField] private float currentHealth;
 
     [Header("Shooting")]
     [SerializeField] private GameObject bulletPrefab;

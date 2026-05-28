@@ -8,7 +8,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
     [Header("Health")]
     [SerializeField] private float maxHealth = 3f;
     [SerializeField] private RuntimeAnimatorController explosionController;
-    private float currentHealth;
+    [SerializeField] private float currentHealth;
 
     [Header("Debug")]
     [SerializeField] private bool verbose = true;
@@ -148,7 +148,7 @@ public class EnemyHealth : MonoBehaviour, IDamageable
         isDying= true;
         ScoreManager.Instance?.AddScore(bounty);
 
-        AudioManager.Instance?.PlayExplosion();
+        //AudioManager.Instance?.PlayExplosion();
 
         GameObject fx = new GameObject("EnemyExplosionFX");
         fx.transform.position = transform.position;
