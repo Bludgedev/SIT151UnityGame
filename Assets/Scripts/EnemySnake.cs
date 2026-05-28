@@ -39,6 +39,11 @@ public class EnemySnake : MonoBehaviour, IDamageable
 
     private void Start()
     {
+        if (moveDirection < 0)
+        {
+            head.localScale = new Vector3(-1, 1, 1);
+        }
+
         BuildSnake();
         SetupSegments();
         baseY = head.position.y;
@@ -70,10 +75,10 @@ public class EnemySnake : MonoBehaviour, IDamageable
 
         pos.x += moveDirection * speed * dt;
 
-        pos.y = baseY + Mathf.Sin(Time.time * waveFrequency) * waveAmplitude;
+        pos.y = baseY + Mathf.Sin(Time.fixedTime * waveFrequency) * waveAmplitude;
 
         Rigidbody rb = head.GetComponent<Rigidbody>();
-        rb.position = pos;
+        rb.MovePosition(pos);
     }
 
     private void UpdateHistory()
@@ -94,12 +99,11 @@ public class EnemySnake : MonoBehaviour, IDamageable
 
         for (int i = 1; i < allSegments.Count; i++)
         {
+            Transform prev = allSegments[i - 1];
             Transform seg = allSegments[i];
 
-            Vector3 targetPos = allSegments[i - 1].position;
-            Vector3 dir = (seg.position - targetPos).normalized;
-
-            Vector3 desiredPos = targetPos + dir * spacing;
+            Vector3 dir = (seg.position - prev.position).normalized;
+            Vector3 desiredPos = prev.position - dir * spacing;
 
             Rigidbody rb = seg.GetComponent<Rigidbody>();
             rb.MovePosition(desiredPos);
