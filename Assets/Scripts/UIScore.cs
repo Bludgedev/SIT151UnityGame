@@ -9,13 +9,11 @@ public class UIScore : MonoBehaviour
 
     private void Start()
     {
-        if (scoreBoard == null)
-            scoreBoard = GameObject.Find("ScoreBoard")?.GetComponent<TMP_Text>();
-
+        
         if (ScoreManager.Instance != null)
         {
             ScoreManager.Instance.OnScoreChanged += UpdateScore;
-            UpdateScore(ScoreManager.Instance.Score);
+            UpdateScore(ScoreManager.Instance.LevelScore);
         }
     }
 

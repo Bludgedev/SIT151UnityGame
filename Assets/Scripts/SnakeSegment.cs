@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class SnakeSegment : MonoBehaviour
+public class SnakeSegment : MonoBehaviour, IDamageable
 {
-    [Header("Health")]
-    public int maxHP = 6;
+    
+    public int maxHP;
 
-    private int currentHP;
+    [Header("Enemy Stats")]
+    [SerializeField] private int bounty = 15;
+
+
+    private float currentHP;
 
     [Header("Snake Data")]
     public int segmentIndex;
@@ -17,6 +21,7 @@ public class SnakeSegment : MonoBehaviour
     [Header("Visuals")]
     public SpriteRenderer mainRenderer;
     public SpriteRenderer outlineRenderer;
+    [SerializeField] private RuntimeAnimatorController explosionController;
 
     public float flashDuration = 0.1f;
 
@@ -39,14 +44,13 @@ public class SnakeSegment : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
         if (isDead)
             return;
 
         currentHP -= damage;
 
-        // Still alive
         if (currentHP > 0)
         {
             StartCoroutine(DamageFlash());
@@ -55,10 +59,8 @@ public class SnakeSegment : MonoBehaviour
         {
             isDead = true;
 
-            if (owner != null)
-            {
-                owner.DestroyFromIndex(segmentIndex);
-            }
+            Die();
+
         }
     }
 
@@ -90,4 +92,38 @@ public class SnakeSegment : MonoBehaviour
             outlineRenderer.enabled = false;
         }
     }
+
+    private void Die()
+    {
+        if (isDead) return;
+        Debug.Log($"[ENEMY] DEATH: {name}");
+
+        isDead = true;
+
+        ScoreManager.Instance?.AddScore(bounty);
+
+      
+        Explosion();
+
+
+        if (owner != null)
+        {
+            owner.DestroyFromIndex(segmentIndex);
+        }
+    }
+    private void Explosion() 
+    {
+        GameObject fx = new GameObject("SegmentExplosionFX");
+        fx.transform.position = transform.position;
+
+        var sr = fx.AddComponent<SpriteRenderer>();
+        var anim = fx.AddComponent<Animator>();
+        AudioManager.Instance?.PlayExplosion();
+        anim.runtimeAnimatorController = explosionController;
+        sr.sortingOrder = 10;
+
+        Destroy(fx, 1f);
+    }
+
+
 }

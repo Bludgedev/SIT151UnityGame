@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -12,8 +13,7 @@ public class ScoreManager : MonoBehaviour
     public int TotalKills { get; private set; }
     public int TotalPickups { get; private set; }
 
-    public int Score;
-
+    
     // Level Score - resets each level
     public int LevelScore { get; private set; }
     public int LevelKills { get; private set; }
@@ -75,6 +75,11 @@ public class ScoreManager : MonoBehaviour
     public void RegisterPickup()
     {
         LevelPickups++;
+    }
+
+    public void UpdateScoreBoard()
+    {
+        OnScoreChanged?.Invoke(LevelScore);
     }
 
     // -------------------------

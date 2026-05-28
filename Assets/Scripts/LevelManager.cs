@@ -12,9 +12,9 @@ public class LevelManager : MonoBehaviour
 
     [Header("References")]
     public WaveSpawner waveSpawner;
-    public GameObject bossPrefab;
+    [SerializeField] private LevelProfile level;
 
-    
+
 
     void Start()
     {

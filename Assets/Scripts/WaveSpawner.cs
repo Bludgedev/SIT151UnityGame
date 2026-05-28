@@ -37,8 +37,10 @@ public class WaveSpawner : MonoBehaviour
     public List<Wave> waves = new List<Wave>();
 
     [Header("Spawn Area")]
-    public float spawnXRange = 6f;
-    public float spawnY = 6f;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private float screenPadding = 1f;
+    [SerializeField] private float spawnYOffset = 2f;
+
 
     [Header("Wave Timing")]
     public float timeBetweenWaves = 3f;
@@ -113,7 +115,7 @@ public class WaveSpawner : MonoBehaviour
         }
     }
 
-    private void SpawnEnemy(EnemyType type)
+    private void SpawnEnemy(EnemyType type, FormationType formation = FormationType.Single, int count = 1)
     {
         if (!running) return;
 
@@ -123,13 +125,158 @@ public class WaveSpawner : MonoBehaviour
             return;
         }
 
-        float x = Random.Range(-spawnXRange, spawnXRange);
-        Vector3 pos = new Vector3(x, spawnY, 0f);
+        //  Guard for using only Snakes in the Flank formation
+        if (formation == FormationType.Flank && type != EnemyType.Snake)
+        {
+            Debug.LogWarning("Flank formation is only allowed for Snake. Falling back to Single.");
+            formation = FormationType.Single;
+        }
 
-        Instantiate(prefab, pos, Quaternion.identity);
+        //  Guard for using only Flank formation with Snakes
+        if (type == EnemyType.Snake && formation != FormationType.Flank)
+        {
+            Debug.LogWarning("Snake is temporarily restricted to Flank formation. Overriding.");
+
+            formation = FormationType.Flank;
+        }
+
+
+        float camHeight = mainCamera.orthographicSize;
+        float camWidth = camHeight * mainCamera.aspect;
+
+        Vector3 camPos = mainCamera.transform.position;
+
+        float leftBound = camPos.x - camWidth + screenPadding;
+        float rightBound = camPos.x + camWidth - screenPadding;
+
+        float spawnY = camPos.y + camHeight + spawnYOffset;
+
+        float centerX = Random.Range(leftBound, rightBound);
+
+        
+        // -----------------------------
+        // SINGLE
+        // -----------------------------
+        if (formation == FormationType.Single)
+        {
+            Vector3 pos = new Vector3(centerX, spawnY, 0f);
+            Instantiate(prefab, pos, Quaternion.identity);
+            return;
+        }
+
+        // -----------------------------
+        // LINE
+        // -----------------------------
+        if (formation == FormationType.Line)
+        {
+            float spacing = 1.2f;
+
+            float totalWidth = (count - 1) * spacing;
+            float startX = centerX - totalWidth / 2f;
+
+            for (int i = 0; i < count; i++)
+            {
+                float x = startX + i * spacing;
+                Vector3 pos = new Vector3(x, spawnY, 0f);
+
+                Instantiate(prefab, pos, Quaternion.identity);
+            }
+
+            return;
+        }
+
+        // -----------------------------
+        // V SHAPE
+        // -----------------------------
+        if (formation == FormationType.VShape)
+        {
+            float spacing = 1.0f;
+
+            for (int i = 0; i < count; i++)
+            {
+                int row = i / 2;          // depth
+                int side = (i % 2 == 0) ? -1 : 1;
+
+                float xOffset = side * row * spacing;
+                float yOffset = -row * 0.6f;
+
+                Vector3 pos = new Vector3(centerX + xOffset, spawnY + yOffset, 0f);
+
+                Instantiate(prefab, pos, Quaternion.identity);
+            }
+
+            return;
+        }
+
+        // -----------------------------
+        // FLANK - exclusive to Snakes
+        // -----------------------------
+        if (formation == FormationType.Flank)
+        {
+            
+
+            float spawnYLocal = camPos.y + camHeight + spawnYOffset + 1f;
+
+            bool spawnLeft = Random.value > 0.5f;
+
+            float x = spawnLeft
+                ? camPos.x - camWidth - screenPadding
+                : camPos.x + camWidth + screenPadding;
+
+            Vector3 basePos = new Vector3(x, spawnYLocal, 0f);
+
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 offset = new Vector3(0f, -i * 0.6f, 0f);
+                Instantiate(prefab, basePos + offset, Quaternion.identity);
+            }
+
+            return;
+        }
+
+        // -----------------------------
+        // A SHAPE
+        // -----------------------------
+        if (formation == FormationType.AShape)
+        {
+            float spacing = 1.0f;
+
+            for (int i = 0; i < count; i++)
+            {
+                float offset = i * spacing;
+
+                float xOffset = (i % 2 == 0) ? offset : -offset;
+                float yOffset = -i * 0.3f;
+
+                Vector3 pos = new Vector3(centerX + xOffset, spawnY + yOffset, 0f);
+
+                Instantiate(prefab, pos, Quaternion.identity);
+            }
+
+            return;
+        }
+
+
+
+        // -----------------------------
+        // DEFAULT FALLBACK
+        // -----------------------------
+        Vector3 fallback = new Vector3(centerX, spawnY, 0f);
+        Instantiate(prefab, fallback, Quaternion.identity);
     }
 
     // Optional helpers for LevelManager/debug
     public int GetCurrentWaveIndex() => currentWaveIndex;
     public int GetTotalWaves() => waves.Count;
+
+    public enum FormationType
+    {
+        Single,
+        Line,
+        VShape,
+        Flank,
+        AShape
+    }
+
+
 }

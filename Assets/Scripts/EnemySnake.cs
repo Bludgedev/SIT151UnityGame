@@ -6,8 +6,13 @@ public class EnemySnake : MonoBehaviour, IDamageable
 {
     [Header("Segments")]
     public Transform head;
-    public List<Transform> bodySegments = new List<Transform>();
-    public Transform tail;
+    [SerializeField] private int bodySegments = 5;
+
+    [Header("Prefabs")]
+    [SerializeField] private GameObject bodyPrefab;
+    [SerializeField] private GameObject tailPrefab;
+
+    private Transform tail;
 
     [Header("Movement")]
     public int moveDirection = 1;
@@ -16,9 +21,16 @@ public class EnemySnake : MonoBehaviour, IDamageable
     public float segmentSpacing = 0.5f;
     public float speed = 2f;
 
+    [Header("Enemy Stats")]
+    [SerializeField] private int headBounty = 25;
+    [SerializeField] private bool verbose = false;
+    [SerializeField] private RuntimeAnimatorController explosionController; 
+
+    private bool isDying = false;
+
     [Header("Segment HP")]
-    public int headHP = 12;
-    public int bodyHP = 6;
+    public float headHP = 12;
+    public float bodyHP = 6;
 
     private List<Transform> allSegments = new List<Transform>();
     private List<Vector3> positionHistory = new List<Vector3>();
@@ -27,7 +39,7 @@ public class EnemySnake : MonoBehaviour, IDamageable
 
     private void Start()
     {
-        BuildSegmentList();
+        BuildSnake();
         SetupSegments();
         baseY = head.position.y;
 
@@ -46,6 +58,12 @@ public class EnemySnake : MonoBehaviour, IDamageable
         FollowSegments();
     }
 
+
+    public void SetDirection(int dir)
+    {
+        moveDirection = Mathf.Clamp(dir, -1, 1);
+    }
+
     private void MoveHead(float dt)
     {
         Vector3 pos = head.position;
@@ -55,7 +73,7 @@ public class EnemySnake : MonoBehaviour, IDamageable
         pos.y = baseY + Mathf.Sin(Time.time * waveFrequency) * waveAmplitude;
 
         Rigidbody rb = head.GetComponent<Rigidbody>();
-        rb.MovePosition(pos);
+        rb.position = pos;
     }
 
     private void UpdateHistory()
@@ -72,31 +90,57 @@ public class EnemySnake : MonoBehaviour, IDamageable
 
     private void FollowSegments()
     {
+        float spacing = segmentSpacing;
+
         for (int i = 1; i < allSegments.Count; i++)
         {
-            int historyIndex = i * 10;
+            Transform seg = allSegments[i];
 
-            if (historyIndex < positionHistory.Count)
-            {
-                Rigidbody rb = allSegments[i].GetComponent<Rigidbody>();
-                rb.MovePosition(positionHistory[historyIndex]);
-            }
+            Vector3 targetPos = allSegments[i - 1].position;
+            Vector3 dir = (seg.position - targetPos).normalized;
+
+            Vector3 desiredPos = targetPos + dir * spacing;
+
+            Rigidbody rb = seg.GetComponent<Rigidbody>();
+            rb.MovePosition(desiredPos);
         }
     }
 
-    private void BuildSegmentList()
+    private void BuildSnake()
     {
+        allSegments.Clear();
+
         allSegments.Add(head);
 
-        foreach (Transform body in bodySegments)
+        Transform previous = head;
+
+        // BODY
+        for (int i = 0; i < bodySegments; i++)
         {
-            allSegments.Add(body);
+            GameObject body = Instantiate(
+                bodyPrefab,
+                previous.position - new Vector3(segmentSpacing, 0f, 0f),
+                Quaternion.identity
+            );
+
+            allSegments.Add(body.transform);
+            previous = body.transform;
         }
 
-        if (tail != null)
-        {
-            allSegments.Add(tail);
-        }
+        // TAIL (after body loop)
+        CreateTail(previous);
+    }
+
+    private void CreateTail(Transform previous)
+    {
+        GameObject tailObj = Instantiate(
+            tailPrefab,
+            previous.position - new Vector3(segmentSpacing, 0f, 0f),
+            Quaternion.identity
+        );
+
+        allSegments.Add(tailObj.transform);
+        tail = tailObj.transform;
     }
 
     private void SetupSegments()
@@ -120,10 +164,21 @@ public class EnemySnake : MonoBehaviour, IDamageable
         }
     }
 
+
     public void TakeDamage(float damage)
     {
-        //  we fix this later
+        if (isDying) return;
+
+        // Apply to head segment first (entry point damage)
+        SnakeSegment headSeg = head.GetComponent<SnakeSegment>();
+
+        if (headSeg != null)
+        {
+            headSeg.TakeDamage((int)damage);
+            return;
+        }
     }
+
 
     public void DestroyFromIndex(int index)
     {
@@ -144,9 +199,28 @@ public class EnemySnake : MonoBehaviour, IDamageable
         }
     }
 
-    public void Die()
+    private void Die()
     {
-        
+        Debug.Log($"[ENEMY] DEATH: {name}");
+
+        isDying = true;
+        ScoreManager.Instance?.AddScore(headBounty);
+
+        AudioManager.Instance?.PlayExplosion();
+
+        GameObject fx = new GameObject("EnemyExplosionFX");
+        fx.transform.position = transform.position;
+
+        var sr = fx.AddComponent<SpriteRenderer>();
+        var anim = fx.AddComponent<Animator>();
+
+        anim.runtimeAnimatorController = explosionController;
+        sr.sortingOrder = 10;
+
+        Destroy(fx, 1f);
+
+        DestroyFromIndex(0);
+
     }
 
 }

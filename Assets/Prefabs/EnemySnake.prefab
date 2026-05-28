@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &1108526491212029341
+--- !u!1 &1280606967923357176
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,27 +8,25 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1108526491212029336}
-  - component: {fileID: 1108526491212029343}
-  - component: {fileID: 1108526491212029342}
-  - component: {fileID: 7056666644504878884}
-  - component: {fileID: -3788421825842803169}
-  - component: {fileID: 1474686546540252348}
-  - component: {fileID: 8510848713077633542}
-  m_Layer: 7
-  m_Name: EnemyShip
-  m_TagString: EnemyShip
+  - component: {fileID: 1280606967923357177}
+  - component: {fileID: 2881112208392766006}
+  - component: {fileID: 3517973036094342988}
+  - component: {fileID: 2491005814715603070}
+  - component: {fileID: 3380280375348278593}
+  m_Layer: 0
+  m_Name: EnemySnake
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1108526491212029336
+--- !u!4 &1280606967923357177
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1108526491212029341}
+  m_GameObject: {fileID: 1280606967923357176}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -37,13 +35,13 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &1108526491212029343
+--- !u!212 &2881112208392766006
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1108526491212029341}
+  m_GameObject: {fileID: 1280606967923357176}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -78,79 +76,64 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 2e3f06d6b8a336041b628ac8b81cadfa, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1759ccffdb22ba146bf86420fd3fe8ff, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.5, y: 0.77}
+  m_Size: {x: 0.64, y: 0.64}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &1108526491212029342
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1108526491212029341}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 7ab4717c8f1e8cb48ba9bdea66019765, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!114 &7056666644504878884
+--- !u!114 &3517973036094342988
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1108526491212029341}
-  m_Enabled: 0
+  m_GameObject: {fileID: 1280606967923357176}
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19d60860efed5854aa591f99f52163c1, type: 3}
+  m_Script: {fileID: 11500000, guid: 44fac4b2f9e5775449dfe42762802ea3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1
+  head: {fileID: 1280606967923357177}
+  bodySegments: 3
+  bodyPrefab: {fileID: 5411202734028815840, guid: d0d52aca009bf354285bc7309285e134, type: 3}
+  tailPrefab: {fileID: 2547668218312101251, guid: 8eda1171a98a9ce4a803d311685b791f, type: 3}
+  moveDirection: 1
+  waveAmplitude: 2
+  waveFrequency: 2
+  segmentSpacing: 0.5
+  speed: 1
+  headBounty: 25
+  verbose: 0
   explosionController: {fileID: 9100000, guid: f0bcc492b85a4654fa7f7c845fa6a9bb, type: 2}
-  bulletPrefab: {fileID: 1219690634970515614, guid: 74a604a1cc8ef2f4185f325bc7c88ac4, type: 3}
-  bulletSpeed: 6
-  damage: 3
-  fireRateMin: 0.5
-  fireRateMax: 1.5
-  maxSpreadAngle: 25
---- !u!136 &-3788421825842803169
+  headHP: 12
+  bodyHP: 6
+--- !u!136 &2491005814715603070
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1108526491212029341}
-  m_Material: {fileID: 13400000, guid: f52b5c130390bdc4fad02b111d061dfd, type: 2}
+  m_GameObject: {fileID: 1280606967923357176}
+  m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.25
-  m_Height: 0.77
+  m_Radius: 0.42
+  m_Height: 0.64
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &1474686546540252348
+  m_Center: {x: 0.02, y: 0, z: 0}
+--- !u!54 &3380280375348278593
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1108526491212029341}
+  m_GameObject: {fileID: 1280606967923357176}
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0
@@ -160,26 +143,3 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 3
---- !u!114 &8510848713077633542
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1108526491212029341}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bfa93097912d35a45a1ad2bcbdaeb50f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 3
-  explosionController: {fileID: 9100000, guid: f0bcc492b85a4654fa7f7c845fa6a9bb, type: 2}
-  verbose: 1
-  speed: 2
-  bulletPrefab: {fileID: 1219690634970515614, guid: 74a604a1cc8ef2f4185f325bc7c88ac4, type: 3}
-  bulletSpeed: 2
-  damage: 3
-  fireRateMin: 0.5
-  fireRateMax: 3.5
-  maxSpreadAngle: 35
-  bounty: 10

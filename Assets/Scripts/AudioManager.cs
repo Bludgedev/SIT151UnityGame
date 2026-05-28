@@ -50,6 +50,7 @@ public class AudioManager : MonoBehaviour
 
     public void PlaySFX(AudioClip clip, float volumeMultiplier = 1f)
     {
+        Debug.Log($"[AUDIO] Playing SFX: {clip.name} volume {sfxVolume}");
         if (clip == null) return;
 
         GameObject obj = new GameObject("SFX_" + clip.name);
@@ -70,8 +71,11 @@ public class AudioManager : MonoBehaviour
 
     public void PlayExplosion()
     {
-        if (Instance == null || explosionClips == null || explosionClips.Length == 0)
+        if (explosionClips == null || explosionClips.Length == 0)
+        {
+            Debug.LogWarning("[AudioManager] No explosion clips assigned!");
             return;
+        }
 
         AudioClip clip = explosionClips[Random.Range(0, explosionClips.Length)];
 
